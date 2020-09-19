@@ -1,0 +1,105 @@
+CREATE TABLE users (
+  email CHAR(255) NOT NULL,
+  -- name attribute
+  username CHAR(255),
+  pwd CHAR(255),
+  city CHAR(255),
+  gender CHAR(1),
+  PRIMARY KEY (email)
+);
+
+-- previews + previewer (one to one)
+CREATE TABLE previews (
+  rid INTEGER,
+  rating FLOAT(2, 1) CHECK (
+    rating >= 0
+    AND rating <= 5
+  ),
+  rdate DATE,
+  rtext CHAR(255),
+  -- previewer
+  email CHAR(20) NOT NULL,
+  PRIMARY KEY (rid),
+  FOREIGN KEY (email) REFERENCES users ON DELETE NO ACTION
+);
+
+CREATE TABLE products (
+  pid INTEGER,
+  descr CHAR(255),
+  PRIMARY KEY (pid)
+);
+
+-- bids + ubids (one to many) + sbids (many to one)
+CREATE TABLE bids (
+  bid INTEGER,
+  bdate DATE,
+  amount INTEGER,
+  -- ubids
+  email CHAR (255) NOT NULL,
+  -- sbids; sid attribute
+  saleid INTEGER NOT NULL,
+  PRIMARY KEY (bid),
+  -- ubids
+  FOREIGN KEY (email) REFERENCES users ON DELETE NO ACTION,
+  -- sbids
+  FOREIGN KEY (saleid) REFERENCES sale ON DELETE NO ACTION
+);
+
+-- sale + s_assoc (one arrow to product) + lists (many to one)
+CREATE TABLE sale (
+  -- sid attribute
+  saleid INTEGER,
+  end_date DATE,
+  rprice INTEGER,
+  cond CHAR(255),
+  descr CHAR(255),
+  pid INTEGER,
+  -- lists
+  email CHAR(255) NOT NULL,
+  PRIMARY KEY (saleid),
+  FOREIGN KEY (pid) REFERENCES products,
+  -- lists
+  FOREIGN KEY (email) REFERENCES users ON DELETE NO ACTION
+);
+
+-- weak entity items + includes + p_assoc
+CREATE TABLE includes_item (
+  -- no attribute
+  item_no INTEGER,
+  saleid INTEGER NOT NULL,
+  descr CHAR(255),
+  pid INTEGER,
+  PRIMARY KEY (item_no, saleid),
+  FOREIGN KEY (saleid) REFERENCES sale ON DELETE CASCADE,
+  FOREIGN KEY (pid) REFERENCES products
+);
+
+CREATE TABLE endorses (
+  email CHAR(255),
+  rid INTEGER,
+  PRIMARY KEY(email, rid),
+  FOREIGN KEY (email) REFERENCES users,
+  FOREIGN KEY (rid) REFERENCES previews
+);
+
+CREATE TABLE reviews (
+  reviewer_email CHAR(255),
+  reviewee_email CHAR(255),
+  rating FLOAT(2, 1) CHECK (
+    rating >= 0
+    AND rating <= 5
+  ),
+  rtext CHAR(255),
+  rdate DATE,
+  PRIMARY KEY(reviewer_email, reviewee_email),
+  FOREIGN KEY (reviewer_email) REFERENCES users,
+  FOREIGN KEY (reviewee_email) REFERENCES users
+);
+
+CREATE TABLE previewed (
+  rid INTEGER,
+  pid INTEGER,
+  PRIMARY KEY (rid, pid),
+  FOREIGN KEY (rid) REFERENCES previewed,
+  FOREIGN KEY (pid) REFERENCES products
+);
