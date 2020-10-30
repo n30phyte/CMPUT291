@@ -1,8 +1,13 @@
 import os
 import sqlite3
+from datetime import date
+from typing import Tuple
+from user import User
 
 
 class Database:
+    # Avoid injection by doing cursor.execute("(STATEMENT) ?", args)
+    # https://stackoverflow.com/questions/13613037/
     connection = None
     first_time = False
     cursor = None
@@ -18,10 +23,10 @@ class Database:
     def setup(self):
         try:
             self.connection = sqlite3.connect(self.filename)
+            self.cursor = self.connection.cursor()
 
             if self.first_time:
                 print("First time setup. Creating new file.")
-                self.cursor = self.connection.cursor()
                 self.init_sql()
 
         except sqlite3.Error as e:
@@ -31,3 +36,61 @@ class Database:
         with open("db/setup.sql") as command_file:
             setup_queries = command_file.read()
             self.cursor.executescript(setup_queries)
+
+    def login(self, uid: str, password: str) -> Tuple[bool, User]:
+        """
+        Attempts to log a user in.
+
+        :param uid: User's ID
+        :param password: User's password
+        :return: A tuple with a boolean and a User object. If login was successful, bool will be true and User will
+        exist. Otherwise, result is (false, None).
+        """
+
+        self.cursor.execute("SELECT * FROM users WHERE users.uid = ? AND users.pwd = ?;", (uid, password))
+
+        result = self.cursor.fetchall()
+
+        if len(result) == 1:
+            return True, User(*result[0], priviledged=self.get_privileged(uid))
+        else:
+            return False, "Incorrect Password or user does not exist"
+
+    def register(self, uid: str, password: str, name: str = "", city: str = "") -> Tuple[bool, User]:
+        """
+        Attempts to register a user. Automatically returns a user as logged in afterwards.
+
+        :param uid: User's ID
+        :param password: User's password
+        :param name: User's real name (Optional)
+        :param city: User's city (Optional)
+        :return: A tuple with a boolean and a User object. If register was successful, bool will be true and User will
+        exist. Otherwise, result is (false, None).
+        """
+
+        self.cursor.execute("SELECT uid FROM users WHERE users.uid = ?;", (uid,))
+        result = self.cursor.fetchall()
+
+        statement = "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
+
+        if len(result) != 0:
+            return False, "Username exists"
+        else:
+            today = date.today().strftime("%Y-%m-%d")
+            self.cursor.execute(statement, (uid, name, password, city, today))
+
+        self.connection.commit()
+        return self.login(uid, password)
+
+    def get_privileged(self, uid: str) -> bool:
+        self.cursor.execute("SELECT * FROM privileged WHERE privileged.uid = ?;", (uid,))
+
+        result = self.cursor.fetchall()
+
+        if len(result) == 1:
+            return True
+        else:
+            return False
+
+    # def search_post(self, keywords: List[str]) -> Post:
+    #     return "lol"
