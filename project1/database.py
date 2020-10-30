@@ -29,7 +29,7 @@ class Database:
                 print("First time setup. Creating new file.")
                 self.init_sql()
 
-        except sqlite3.Error as e:
+        except sqlite3.Error as e:  # pragma: no cover
             print("Error while connecting to database: %s" % e)
 
     def init_sql(self):
