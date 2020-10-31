@@ -1,7 +1,9 @@
 import os
 import sqlite3
 from datetime import date
-from typing import Tuple
+from typing import Tuple, List
+
+from post import Post
 from user import User
 
 
@@ -12,6 +14,10 @@ class Database:
     first_time = False
     cursor = None
     filename = ""
+
+    # Monotonically increasing counters.
+    pid_max = 0
+    vno_max = 0
 
     def __init__(self, db_filename: str = "db/database.db"):
         self.filename = db_filename
@@ -28,6 +34,12 @@ class Database:
             if self.first_time:
                 print("First time setup. Creating new file.")
                 self.init_sql()
+            else:
+                # Get max pid and vno
+                self.cursor.execute("SELECT MAX(pid) FROM posts;")
+                result = self.cursor.fetchone()
+                if result[0] is not None:
+                    pid_max = result[0]
 
         except sqlite3.Error as e:  # pragma: no cover
             print("Error while connecting to database: %s" % e)
@@ -47,7 +59,7 @@ class Database:
         exist. Otherwise, result is (false, None).
         """
 
-        self.cursor.execute("SELECT * FROM users WHERE users.uid = ? AND users.pwd = ?;", (uid, password))
+        self.cursor.execute("SELECT * FROM users WHERE (users.uid LIKE ?) AND (users.pwd = ?);", (uid, password))
 
         result = self.cursor.fetchall()
 
@@ -67,8 +79,10 @@ class Database:
         :return: A tuple with a boolean and a User object. If register was successful, bool will be true and User will
         exist. Otherwise, result is (false, None).
         """
+        if len(uid) > 4 or len(uid) <= 0:
+            return False, "Username should be between 0 and 5 characters, exclusive"
 
-        self.cursor.execute("SELECT uid FROM users WHERE users.uid = ?;", (uid,))
+        self.cursor.execute("SELECT uid FROM users WHERE users.uid LIKE ?;", (uid,))
         result = self.cursor.fetchall()
 
         statement = "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
@@ -92,5 +106,28 @@ class Database:
         else:
             return False
 
-    # def search_post(self, keywords: List[str]) -> Post:
-    #     return "lol"
+    def new_post(self, post: Post):
+        statement = "INSERT INTO posts (pid, pdate, title, body, poster) VALUES (?, ?, ?, ?, ?);"
+
+        post.post_id = format(self.pid_max, 'x')
+        self.pid_max += 1
+
+        today = date.today().strftime("%Y-%m-%d")
+        self.cursor.execute(statement, (post.post_id, today, post.title, post.body, post.poster.uid))
+
+        if post.is_answer:
+            self.cursor.execute("INSERT INTO answers (pid, qid) VALUES (?, ?);", (post.post_id, post.question_id))
+        else:
+            self.cursor.execute("INSERT INTO questions (pid) VALUES (?);", (post.post_id,))
+
+        self.connection.commit()
+
+    def search_post(self, keywords: List[str]) -> List[Post]:
+        self.cursor.execute("SELECT * FROM posts;")
+
+        output = []
+
+        for result in self.cursor.fetchall():
+            output.append(Post(*result))
+
+        return output

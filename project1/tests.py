@@ -1,6 +1,7 @@
 import unittest
 
 from database import Database
+from post import Post
 
 
 class TestUser(unittest.TestCase):
@@ -13,32 +14,40 @@ class TestUser(unittest.TestCase):
         add_user = "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
         add_privilege = "INSERT INTO privileged (uid) VALUES(?);"
 
-        cls.db.cursor.execute(add_user, ('n30phyte', 'Mike', '1234', 'Jakarta', '2020-10-29'))
-        cls.db.cursor.execute(add_user, ('shadow', 'Cynthia', '12345', 'Edmonton', '2020-09-29'))
-        cls.db.cursor.execute(add_user, ('ducklin', 'Azeez', 'abcdef', 'Edmonton', '2019-05-16'))
-        cls.db.cursor.execute(add_privilege, ('n30phyte',))
+        cls.db.cursor.execute(add_user, ('n30p', 'Mike', '1234', 'Jakarta', '2020-10-29'))
+        cls.db.cursor.execute(add_user, ('shad', 'Cynthia', '12345', 'Edmonton', '2020-09-29'))
+        cls.db.cursor.execute(add_user, ('duck', 'Azeez', 'abcdef', 'Edmonton', '2019-05-16'))
+        cls.db.cursor.execute(add_privilege, ('n30p',))
 
         cls.db.connection.commit()
 
     def testLoginSuccess(self):
-        mike = self.db.login('n30phyte', '1234')
-        cynthia = self.db.login('shadow', '12345')
-        azeez = self.db.login('ducklin', 'abcdef')
+        mike_low = self.db.login('n30p', '1234')
+        mike_caps = self.db.login('N30P', '1234')
+        cynthia_low = self.db.login('shad', '12345')
+        cynthia_mix = self.db.login('shaD', '12345')
+        azeez_low = self.db.login('duck', 'abcdef')
+        azeez_mix = self.db.login('dUck', 'abcdef')
 
         # Test for success logging in
-        self.assertTrue(mike[0])
-        self.assertTrue(cynthia[0])
-        self.assertTrue(azeez[0])
+        self.assertTrue(mike_low[0])
+        self.assertTrue(mike_caps[0])
+
+        self.assertTrue(cynthia_low[0])
+        self.assertTrue(cynthia_mix[0])
+
+        self.assertTrue(azeez_low[0])
+        self.assertTrue(azeez_mix[0])
 
         # Make sure the correct users returned
-        self.assertEqual(mike[1].name, "Mike")
-        self.assertEqual(cynthia[1].name, "Cynthia")
-        self.assertEqual(azeez[1].name, "Azeez")
+        self.assertEqual(mike_low[1].name, mike_caps[1].name)
+        self.assertEqual(cynthia_low[1].name, cynthia_mix[1].name)
+        self.assertEqual(azeez_low[1].name, azeez_mix[1].name)
 
     def testPrivilege(self):
-        mike = self.db.login('n30phyte', '1234')
-        cynthia = self.db.login('shadow', '12345')
-        azeez = self.db.login('ducklin', 'abcdef')
+        mike = self.db.login('n30p', '1234')
+        cynthia = self.db.login('shad', '12345')
+        azeez = self.db.login('duck', 'abcdef')
 
         # Verify privilege
         self.assertTrue(mike[1].privileged)
@@ -58,7 +67,7 @@ class TestUser(unittest.TestCase):
         self.assertFalse(armi[0])
 
     def testRegisterSuccess(self):
-        armi = self.db.register("armiantos", "uwu", "Armianto", "Bali")
+        armi = self.db.register("armi", "uwu", "Armianto", "Bali")
 
         # Test for success registering
         self.assertTrue(armi[0])
@@ -72,6 +81,38 @@ class TestUser(unittest.TestCase):
         # Test for failure registering
         self.assertFalse(mike[0])
 
+class TestPosts(unittest.TestCase):
+    db = None
+
+    @classmethod
+    def setUpClass(cls):
+        cls.db = Database(":memory:")
+
+        add_user = "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
+        cls.db.cursor.execute(add_user, ('n30p', 'Mike', '1234', 'Jakarta', '2020-10-29'))
+        cls.db.cursor.execute(add_user, ('shad', 'Cynthia', '12345', 'Edmonton', '2020-09-29'))
+
+        cls.db.connection.commit()
+
+    def testCreatePost(self):
+        (err, mike) = self.db.login('n30p', '1234')
+        (err, cynthia) = self.db.login('shad', '12345')
+
+        question = Post("Why did we pick python", "Yeah what title said. Rust is better", mike)
+        self.db.new_post(question)
+
+        answer = Post("Why not?", "rust is hard", cynthia)
+        answer.set_as_answer(question)
+
+        self.db.new_post(answer)
+
+        all_posts = self.db.cursor.execute("SELECT * FROM posts").fetchall()
+        answers = self.db.cursor.execute("SELECT * FROM answers").fetchall()
+        question = self.db.cursor.execute("SELECT * FROM questions").fetchall()
+
+        self.assertEqual(len(all_posts), len(answers) + len(question))
+        self.assertEqual(len(answers), 1)
+        self.assertEqual(len(question), 1)
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()
