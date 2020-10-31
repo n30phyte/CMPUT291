@@ -1,7 +1,6 @@
 import unittest
 
 from database import Database
-from post import Post
 
 
 class TestUser(unittest.TestCase):
