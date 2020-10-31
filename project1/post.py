@@ -1,3 +1,5 @@
+from typing import List
+
 from user import User
 
 
@@ -10,18 +12,23 @@ class Post:
 
     is_answer = False
     question_id = ""
+    tags = None
 
-    def __init__(self, title: str, body: str, poster: User):
+    is_accepted = False
+
+    def __init__(self, post_id: str, date: str, title: str, body: str, poster: User):
+        self.post_id = post_id
+        self.date = date
         self.title = title
         self.body = body
         self.poster = poster
 
-    def set_post_id(self, post_id: str):
-        self.post_id = post_id
-
-    def set_post_date(self, date: str):
-        self.date = date
-
     def set_as_answer(self, question_post: 'Post'):
         self.is_answer = True
         self.question_id = question_post.post_id
+
+    def set_tags(self, tags: List[str]):
+        self.tags = tags
+
+    def set_as_accepted(self, answer_post: 'Post'):
+        self.is_accepted = True

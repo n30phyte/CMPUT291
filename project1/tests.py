@@ -81,6 +81,7 @@ class TestUser(unittest.TestCase):
         # Test for failure registering
         self.assertFalse(mike[0])
 
+
 class TestPosts(unittest.TestCase):
     db = None
 
@@ -91,28 +92,28 @@ class TestPosts(unittest.TestCase):
         add_user = "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
         cls.db.cursor.execute(add_user, ('n30p', 'Mike', '1234', 'Jakarta', '2020-10-29'))
         cls.db.cursor.execute(add_user, ('shad', 'Cynthia', '12345', 'Edmonton', '2020-09-29'))
+        cls.db.cursor.execute(add_user, ('duck', 'Azeez', 'abcdef', 'Edmonton', '2019-05-16'))
 
         cls.db.connection.commit()
 
     def testCreatePost(self):
-        (err, mike) = self.db.login('n30p', '1234')
-        (err, cynthia) = self.db.login('shad', '12345')
+        (_, mike) = self.db.login('n30p', '1234')
+        (_, cynthia) = self.db.login('shad', '12345')
+        (_, azs) = self.db.login('duck', 'abcdef')
 
-        question = Post("Why did we pick python", "Yeah what title said. Rust is better", mike)
-        self.db.new_post(question)
+        question = self.db.new_question("Why did we pick python", "Yeah what title said. Rust is better", mike)
 
-        answer = Post("Why not?", "rust is hard", cynthia)
-        answer.set_as_answer(question)
-
-        self.db.new_post(answer)
+        self.db.new_answer("Why not?", "rust is hard", cynthia, question)
+        self.db.new_answer("Oh yeah..", "Rust would've been much cooler", azs, question)
 
         all_posts = self.db.cursor.execute("SELECT * FROM posts").fetchall()
         answers = self.db.cursor.execute("SELECT * FROM answers").fetchall()
-        question = self.db.cursor.execute("SELECT * FROM questions").fetchall()
+        questions = self.db.cursor.execute("SELECT * FROM questions").fetchall()
 
-        self.assertEqual(len(all_posts), len(answers) + len(question))
-        self.assertEqual(len(answers), 1)
-        self.assertEqual(len(question), 1)
+        self.assertEqual(len(answers), 2)
+        self.assertEqual(len(questions), 1)
+        self.assertEqual(len(all_posts), len(answers) + len(questions))
+
 
 if __name__ == '__main__':  # pragma: no cover
     unittest.main()

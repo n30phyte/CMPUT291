@@ -39,7 +39,7 @@ class Database:
                 self.cursor.execute("SELECT MAX(pid) FROM posts;")
                 result = self.cursor.fetchone()
                 if result[0] is not None:
-                    pid_max = result[0]
+                    self.pid_max = result[0]
 
         except sqlite3.Error as e:  # pragma: no cover
             print("Error while connecting to database: %s" % e)
@@ -64,7 +64,7 @@ class Database:
         result = self.cursor.fetchall()
 
         if len(result) == 1:
-            return True, User(*result[0], priviledged=self.get_privileged(uid))
+            return True, User(*result[0], privileged=self.get_privileged(uid))
         else:
             return False, "Incorrect Password or user does not exist"
 
@@ -106,25 +106,54 @@ class Database:
         else:
             return False
 
-    def new_post(self, post: Post):
+    def new_question(self, title: str, body: str, poster: User) -> Post:
+        post = self.new_post(title, body, poster)
+        self.cursor.execute("INSERT INTO questions (pid) VALUES (?);", (post.post_id,))
+        self.connection.commit()
+
+        return post
+
+    def new_answer(self, title: str, body: str, poster: User, question: Post) -> Post:
+        post = self.new_post(title, body, poster)
+        post.set_as_answer(question)
+        self.cursor.execute("INSERT INTO answers (pid, qid) VALUES (?, ?);", (post.post_id, post.question_id))
+        self.connection.commit()
+
+        return post
+
+    def new_post(self, title: str, body: str, poster: User) -> Post:
         statement = "INSERT INTO posts (pid, pdate, title, body, poster) VALUES (?, ?, ?, ?, ?);"
 
-        post.post_id = format(self.pid_max, 'x')
+        today = date.today().strftime("%Y-%m-%d")
+        post = Post(format(self.pid_max, 'x'), today, title, body, poster)
         self.pid_max += 1
 
-        today = date.today().strftime("%Y-%m-%d")
         self.cursor.execute(statement, (post.post_id, today, post.title, post.body, post.poster.uid))
 
-        if post.is_answer:
-            self.cursor.execute("INSERT INTO answers (pid, qid) VALUES (?, ?);", (post.post_id, post.question_id))
-        else:
-            self.cursor.execute("INSERT INTO questions (pid) VALUES (?);", (post.post_id,))
+        return post
+
+    def tag_post(self, post: Post):
+        # Get all existing tags for the post
+        self.cursor.execute("SELECT tag FROM tags WHERE pid = ?;", (post.post_id,))
+
+        existing_tags = set()
+
+        # Add them all to the set
+        for tag_entries in self.cursor.fetchall():
+            existing_tags.add(tag_entries[0].lower())
+
+        # Go through the list and add the tags one by one, keeping casing
+        for tag in post.tags:
+            if tag.lower() not in existing_tags:
+                self.cursor.execute("INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag))
 
         self.connection.commit()
 
     def search_post(self, keywords: List[str]) -> List[Post]:
-        self.cursor.execute("SELECT * FROM posts;")
-
+        # Could probably combine, using the sql commands from the last assignment
+        title_search = "SELECT * FROM posts WHERE title LIKE ?;"
+        body_search = "SELECT * FROM posts WHERE body LIKE ?;"
+        # TODO: Make this work
         output = []
 
         for result in self.cursor.fetchall():
