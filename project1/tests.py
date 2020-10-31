@@ -1,7 +1,6 @@
 import unittest
 
 from database import Database
-from post import Post
 
 
 class TestUser(unittest.TestCase):
@@ -57,7 +56,7 @@ class TestUser(unittest.TestCase):
     def testLoginFail(self):
         mike = self.db.login('n30phyte', '12345')
         cynthia = self.db.login('shadow', '1234')
-        azeez = self.db.login('ducklin', 'abc')
+        azeez = self.db.login('ducklin', 'ABCDEF')
         armi = self.db.login('armiantos', 'uwu')
 
         # Test for failure logging in
@@ -96,23 +95,38 @@ class TestPosts(unittest.TestCase):
 
         cls.db.connection.commit()
 
-    def testCreatePost(self):
-        (_, mike) = self.db.login('n30p', '1234')
-        (_, cynthia) = self.db.login('shad', '12345')
-        (_, azs) = self.db.login('duck', 'abcdef')
+        (_, cls.mike) = cls.db.login('n30p', '1234')
+        (_, cls.cynthia) = cls.db.login('shad', '12345')
+        (_, cls.azs) = cls.db.login('duck', 'abcdef')
 
-        question = self.db.new_question("Why did we pick python", "Yeah what title said. Rust is better", mike)
+    def testPosts(self):
+        question = self.db.new_question("Why did we pick python", "Yeah what title said. Rust is better", self.mike)
 
-        self.db.new_answer("Why not?", "rust is hard", cynthia, question)
-        self.db.new_answer("Oh yeah..", "Rust would've been much cooler", azs, question)
+        all_posts = self.db.cursor.execute("SELECT * FROM posts;").fetchall()
+        questions = self.db.cursor.execute("SELECT * FROM questions;").fetchall()
 
-        all_posts = self.db.cursor.execute("SELECT * FROM posts").fetchall()
-        answers = self.db.cursor.execute("SELECT * FROM answers").fetchall()
-        questions = self.db.cursor.execute("SELECT * FROM questions").fetchall()
-
-        self.assertEqual(len(answers), 2)
         self.assertEqual(len(questions), 1)
-        self.assertEqual(len(all_posts), len(answers) + len(questions))
+        self.assertEqual(len(all_posts), len(questions))
+
+        self.db.new_answer("Why not?", "rust is hard", self.cynthia, question)
+        self.db.new_answer("Oh yeah..", "Rust would've been much cooler", self.azs, question)
+
+        good_ans = self.db.new_answer("I've never used rust either", "Learning curve is very steep", self.cynthia,
+                                      question)
+
+        answers = self.db.cursor.execute("SELECT * FROM answers;").fetchall()
+
+        self.assertEqual(len(answers), 3)
+
+        # Only one vote should get counted
+        self.db.vote_post(good_ans, self.mike)
+        self.db.vote_post(good_ans, self.mike)
+
+        self.db.vote_post(good_ans, self.azs)
+
+        votes = self.db.cursor.execute("SELECT * FROM votes;").fetchall()
+
+        self.assertEqual(len(votes), 2)
 
 
 if __name__ == '__main__':  # pragma: no cover

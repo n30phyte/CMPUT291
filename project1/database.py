@@ -41,6 +41,11 @@ class Database:
                 if result[0] is not None:
                     self.pid_max = result[0]
 
+                self.cursor.execute("SELECT MAX(vno) FROM votes;")
+                result = self.cursor.fetchone()
+                if result[0] is not None:
+                    self.vno_max = result[0]
+
         except sqlite3.Error as e:  # pragma: no cover
             print("Error while connecting to database: %s" % e)
 
@@ -148,6 +153,18 @@ class Database:
                 self.cursor.execute("INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag))
 
         self.connection.commit()
+
+    def vote_post(self, post: Post, voter: User):
+        self.cursor.execute("SELECT uid FROM votes WHERE pid = ? AND uid = ?;", (post.post_id, voter.uid))
+
+        result = self.cursor.fetchall()
+
+        if len(result) == 0:
+            today = date.today().strftime("%Y-%m-%d")
+            statement = "INSERT INTO votes (pid, vno, vdate, uid) VALUES (?, ?, ?, ?);"
+            self.cursor.execute(statement, (post.post_id, format(self.vno_max, 'x'), today, voter.uid))
+            self.vno_max += 1
+            self.connection.commit()
 
     def search_post(self, keywords: List[str]) -> List[Post]:
         # Could probably combine, using the sql commands from the last assignment
