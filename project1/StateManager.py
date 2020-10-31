@@ -1,11 +1,13 @@
 from util import clear
 
-"""
-A generic State Class
-"""
 class State:
-    stacks = True
-    running = False
+    """
+    A generic State Class
+    """
+    stacks :bool = True
+    running :bool  = False
+    manager = None
+
     def _enter(self):
         running = True
         clear()
@@ -23,24 +25,22 @@ class State:
 
     def exit(self): pass
 
-"""
-A generic state machine class that will manage and transition between states
-"""
 class StateManager:
-# keep track of the current state and state history
-# MAKE SURE TO SET THE START_STATE
+    """
+    A generic state machine class that will manage and transition between states
+    """
     states : dict = {}
     stateStack : list = []
 
     PREV_STATE : str = "_PREV_STATE_"
 
-    def addState(self, state: State, name :str):
+    def addState(self, state: "State", name :str):
         self.states[name] = state
         state.manager = self
 
     def start(self, startState : str):
         self.stateStack.insert(0, startState)
-        self.states[self.stateStack[0]].enter()
+        self.states[self.stateStack[0]]._enter()
 
     def changeState(self, nextStateName : str):
         if nextStateName == self.PREV_STATE:
@@ -59,4 +59,4 @@ class StateManager:
                     del self.stateStack[0]
             else:
                 self.stateStack.insert(0, nextStateName)
-                nextState.enter()
+                nextState._enter()
