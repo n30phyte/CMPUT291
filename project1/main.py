@@ -1,9 +1,10 @@
 from database import Database
-from StateManager import StateManager
+from state_manager import StateManager
 from states import LoginState, PostState
+from .shared import *
 
 if __name__ == "__main__":
-    db :Database = Database()
+    db = Database()
 
     sm = StateManager()
     sm.addState(LoginState(), "login")

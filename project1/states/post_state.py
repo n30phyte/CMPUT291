@@ -1,6 +1,5 @@
-from StateManager import State;
-from .shared import *
+from state_manager import State
+from shared import *
 
 class PostState(State):
-    def enter(self):
-        super()
+    def enter(self): pass

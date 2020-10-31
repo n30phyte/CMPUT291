@@ -1,6 +1,5 @@
-from StateManager import State;
-from post import *
-from .shared import *
+from state_manager import State
+from shared import *
 
 class LoginState(State):
     def enter(self):
