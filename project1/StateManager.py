@@ -1,3 +1,5 @@
+from util import clear
+
 """
 A generic State Class
 """
@@ -6,6 +8,7 @@ class State:
     running = False
     def _enter(self):
         running = True
+        clear()
         self.enter()
         while (running):
             self.process();
