@@ -9,10 +9,10 @@ class State:
     manager = None
 
     def _enter(self):
-        running = True
+        self.running = True
         clear()
         self.enter()
-        while running:
+        while self.running:
             self.process()
 
     def enter(self):
@@ -22,7 +22,7 @@ class State:
         pass
 
     def _exit(self):
-        running = False
+        self.running = False
         exit()
 
     def exit(self):
