@@ -11,5 +11,5 @@ class SearchState(State):
 
     def loop(self):
         keywords = input()
-        results = db.search_post(keywords.split())
+        results = shared.db.search_post(keywords.split())
         # todo: display search results

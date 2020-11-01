@@ -9,11 +9,13 @@ class MenuState(State):
         print(term.black_on_darkkhaki(term.center("Login successful!")))
         print(term.move_down() + "1. Post a question" + "\n" + "2. Search posts")
         print("Select an action")
-        with term.cbreak(), term.hidden_cursor():
-            self.action = term.inkey()
 
-    def process(self):
-        if self.action == 1:
+    def loop(self):
+        with term.cbreak(), term.hidden_cursor():
+            action = term.inkey()
+        if action == "1":
             self.manager.change_state("question")
-        elif self.action == 2:
+        elif action == "2":
             self.manager.change_state("search")
+        else:
+            print(action + " is not a valid option, please try again...")
