@@ -23,12 +23,12 @@ class Post:
         self.body = body
         self.poster = poster
 
-    def set_as_answer(self, question_post: 'Post'):
+    def set_as_answer(self, question_post: "Post"):
         self.is_answer = True
         self.question_id = question_post.post_id
 
     def set_tags(self, tags: List[str]):
         self.tags = tags
 
-    def set_as_accepted(self, answer_post: 'Post'):
+    def set_as_accepted(self, answer_post: "Post"):
         self.is_accepted = True

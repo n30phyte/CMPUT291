@@ -64,7 +64,10 @@ class Database:
         exist. Otherwise, result is (false, None).
         """
 
-        self.cursor.execute("SELECT * FROM users WHERE (users.uid LIKE ?) AND (users.pwd = ?);", (uid, password))
+        self.cursor.execute(
+            "SELECT * FROM users WHERE (users.uid LIKE ?) AND (users.pwd = ?);",
+            (uid, password),
+        )
 
         result = self.cursor.fetchall()
 
@@ -73,7 +76,9 @@ class Database:
         else:
             return False, "Incorrect Password or user does not exist"
 
-    def register(self, uid: str, password: str, name: str = "", city: str = "") -> Tuple[bool, User]:
+    def register(
+        self, uid: str, password: str, name: str = "", city: str = ""
+    ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
 
@@ -90,7 +95,9 @@ class Database:
         self.cursor.execute("SELECT uid FROM users WHERE users.uid LIKE ?;", (uid,))
         result = self.cursor.fetchall()
 
-        statement = "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
+        statement = (
+            "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
+        )
 
         if len(result) != 0:
             return False, "Username exists"
@@ -102,7 +109,9 @@ class Database:
         return self.login(uid, password)
 
     def get_privileged(self, uid: str) -> bool:
-        self.cursor.execute("SELECT * FROM privileged WHERE privileged.uid = ?;", (uid,))
+        self.cursor.execute(
+            "SELECT * FROM privileged WHERE privileged.uid = ?;", (uid,)
+        )
 
         result = self.cursor.fetchall()
 
@@ -121,7 +130,10 @@ class Database:
     def new_answer(self, title: str, body: str, poster: User, question: Post) -> Post:
         post = self.new_post(title, body, poster)
         post.set_as_answer(question)
-        self.cursor.execute("INSERT INTO answers (pid, qid) VALUES (?, ?);", (post.post_id, post.question_id))
+        self.cursor.execute(
+            "INSERT INTO answers (pid, qid) VALUES (?, ?);",
+            (post.post_id, post.question_id),
+        )
         self.connection.commit()
 
         return post
@@ -130,10 +142,12 @@ class Database:
         statement = "INSERT INTO posts (pid, pdate, title, body, poster) VALUES (?, ?, ?, ?, ?);"
 
         today = date.today().strftime("%Y-%m-%d")
-        post = Post(format(self.pid_max, 'x'), today, title, body, poster)
+        post = Post(format(self.pid_max, "x"), today, title, body, poster)
         self.pid_max += 1
 
-        self.cursor.execute(statement, (post.post_id, today, post.title, post.body, post.poster.uid))
+        self.cursor.execute(
+            statement, (post.post_id, today, post.title, post.body, post.poster.uid)
+        )
 
         return post
 
@@ -150,19 +164,26 @@ class Database:
         # Go through the list and add the tags one by one, keeping casing
         for tag in post.tags:
             if tag.lower() not in existing_tags:
-                self.cursor.execute("INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag))
+                self.cursor.execute(
+                    "INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag)
+                )
 
         self.connection.commit()
 
     def vote_post(self, post: Post, voter: User):
-        self.cursor.execute("SELECT uid FROM votes WHERE pid = ? AND uid = ?;", (post.post_id, voter.uid))
+        self.cursor.execute(
+            "SELECT uid FROM votes WHERE pid = ? AND uid = ?;",
+            (post.post_id, voter.uid),
+        )
 
         result = self.cursor.fetchall()
 
         if len(result) == 0:
             today = date.today().strftime("%Y-%m-%d")
             statement = "INSERT INTO votes (pid, vno, vdate, uid) VALUES (?, ?, ?, ?);"
-            self.cursor.execute(statement, (post.post_id, format(self.vno_max, 'x'), today, voter.uid))
+            self.cursor.execute(
+                statement, (post.post_id, format(self.vno_max, "x"), today, voter.uid)
+            )
             self.vno_max += 1
             self.connection.commit()
 

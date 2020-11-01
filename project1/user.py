@@ -6,7 +6,15 @@ class User:
     create_date = ""
     privileged = False
 
-    def __init__(self, uid: str, name: str, password: str, city: str, create_date: str, privileged: bool):
+    def __init__(
+        self,
+        uid: str,
+        name: str,
+        password: str,
+        city: str,
+        create_date: str,
+        privileged: bool,
+    ):
         self.uid = uid
         self.name = name
         self.password = password
