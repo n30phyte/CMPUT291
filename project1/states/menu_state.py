@@ -5,6 +5,7 @@ import shared
 
 class MenuState(State):
     def enter(self):
+        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Login successful!")))
         print(term.move_down() + "1. Post a question" + "\n" + "2. Search posts")
         print("Select an action")

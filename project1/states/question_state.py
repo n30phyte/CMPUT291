@@ -5,14 +5,10 @@ import shared
 
 class QuestionState(State):
     def enter(self):
+        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("New question")))
-        print(term.move_down() + "1. Post a question" + "\n" + "2. Search posts")
-        print("Select an action")
-        with term.cbreak(), term.hidden_cursor():
-            self.action = term.inkey()
 
-    def process(self):
-        if self.action == 1:
-            self.manager.change_state("question")
-        elif self.action == 2:
-            self.manager.change_state("search")
+    def loop(self):
+        title = input("Title: ")
+        body = input("Body: ")
+        db.new_question(title, body, user)

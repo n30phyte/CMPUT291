@@ -26,7 +26,6 @@ class LoginState(State):
             self.user_type = term.inkey()
 
     def loop(self):
-        user = None
         if self.user_type == "r":
             print("Login:")
             tries = 0

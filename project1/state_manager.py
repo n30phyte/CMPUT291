@@ -46,7 +46,7 @@ class StateManager:
 
     def start(self, start_state):
         """
-        Start the statemachine at the given state name
+        Start the state machine at the given state name
 
         :param start_state: name of state to start at
         """
