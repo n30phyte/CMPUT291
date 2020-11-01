@@ -2,17 +2,20 @@ from state_manager import State
 from shared import term
 import shared
 
+
 def prompt_returning_user():
     uid = input("User ID: ")
     pw = input("Password: ")
     return uid, pw
 
+
 def prompt_new_user():
     uid = input("User ID: ")
+    pw = input("Password: ")
     name = input("Name: ")
     city = input("City: ")
-    pw = input("Password: ")
-    return [uid, name, city, pw]
+    return [uid, pw, name, city]
+
 
 class LoginState(State):
     def enter(self):
@@ -23,7 +26,6 @@ class LoginState(State):
             self.user_type = term.inkey()
 
     def process(self):
-        user = None
         if self.user_type == "r":
             print("Login:")
             tries = 0
@@ -38,9 +40,9 @@ class LoginState(State):
         elif self.user_type == "n":
             print("Create a new account:")
             uid = input("User ID: ")
+            pw = input("Password: ")
             name = input("Name: ")
             city = input("City: ")
-            pw = input("Password: ")
             success, user = shared.db.register(uid, pw, name, city)
             while ~success:
                 print(user)

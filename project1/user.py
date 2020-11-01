@@ -21,3 +21,6 @@ class User:
         self.city = city
         self.create_date = create_date
         self.privileged = privileged
+
+    def is_privileged(self):
+        return self.privileged

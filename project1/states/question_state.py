@@ -3,9 +3,9 @@ from shared import term
 import shared
 
 
-class MenuState(State):
+class QuestionState(State):
     def enter(self):
-        print(term.black_on_darkkhaki(term.center("Login successful!")))
+        print(term.black_on_darkkhaki(term.center("New question")))
         print(term.move_down() + "1. Post a question" + "\n" + "2. Search posts")
         print("Select an action")
         with term.cbreak(), term.hidden_cursor():

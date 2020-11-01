@@ -1,5 +1,6 @@
 from util import clear
 
+
 class State:
     """
     A generic State Class
