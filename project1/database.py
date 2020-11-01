@@ -106,7 +106,7 @@ class Database:
             self.cursor.execute(statement, (uid, name, password, city, today))
 
         self.connection.commit()
-        return self.login(uid, password)
+        return True, self.login(uid, password)
 
     def get_privileged(self, uid: str) -> bool:
         self.cursor.execute(
