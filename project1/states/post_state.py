@@ -31,11 +31,11 @@ class PostState(State):
             action_num += 1
         print("{}. Exit".format(action_num))
 
-        action = input("Select an action")
-        if action == 0:
+        action = input("Select an action: ")
+        if action == "0":
             # answer
             pass
-        elif action == 1:
+        elif action == "1":
             # vote
             pass
         # todo: which way is best to split into priv and non priv user paths

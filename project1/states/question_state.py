@@ -11,4 +11,4 @@ class QuestionState(State):
     def loop(self):
         title = input("Title: ")
         body = input("Body: ")
-        db.new_question(title, body, user)
+        shared.db.new_question(title, body, shared.user)

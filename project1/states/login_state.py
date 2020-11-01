@@ -53,4 +53,5 @@ class LoginState(State):
             print(user_type + " is not a valid opion, please try again...")
             return
 
+        shared.user = user
         self.manager.change_state("menu")
