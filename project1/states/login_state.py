@@ -25,7 +25,8 @@ class LoginState(State):
         with term.cbreak(), term.hidden_cursor():
             self.user_type = term.inkey()
 
-    def process(self):
+    def loop(self):
+        user = None
         if self.user_type == "r":
             print("Login:")
             tries = 0
@@ -44,7 +45,7 @@ class LoginState(State):
             name = input("Name: ")
             city = input("City: ")
             success, user = shared.db.register(uid, pw, name, city)
-            while ~success:
+            while not success:
                 print(user)
                 data = prompt_new_user()
                 success, user = shared.db.register(data[0], data[1], data[2], data[3])
