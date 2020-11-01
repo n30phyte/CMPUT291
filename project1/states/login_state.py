@@ -22,7 +22,7 @@ class LoginState(State):
         with term.cbreak(), term.hidden_cursor():
             self.user_type = term.inkey()
 
-    def process(self):
+    def loop(self):
         user = None
         if self.user_type == "r":
             print("Login:")

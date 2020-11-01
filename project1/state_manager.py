@@ -13,19 +13,19 @@ class State:
         clear()
         self.enter()
         while self.running:
-            self.process()
+            self.loop()
 
     def enter(self):
         pass
 
-    def process(self):
+    def loop(self):
         pass
 
-    def _exit(self):
+    def _leave(self):
         self.running = False
-        exit()
+        self.leave()
 
-    def exit(self):
+    def leave(self):
         pass
 
 
@@ -65,7 +65,7 @@ class StateManager:
 
         # special case: previous state
         if next_state_name == self.PREV_STATE:
-            self.states[self.state_stack[0]]._exit()
+            self.states[self.state_stack[0]]._leave()
             del self.state_stack[0]
         else:
             if not next_state_name in self.states:
@@ -75,7 +75,7 @@ class StateManager:
             # case: non stacking state
             if not nextState.stacks and next_state_name in self.state_stack:
                 while self.state_stack[0] != next_state_name:
-                    self.states[self.state_stack[0]]._exit()
+                    self.states[self.state_stack[0]]._leave()
                     del self.state_stack[0]
             # case: stacking state
             else:
