@@ -42,7 +42,7 @@ class LoginState(State):
             city = input("City: ")
             pw = input("Password: ")
             success, user = shared.db.register(uid, pw, name, city)
-            while ~success:
+            while not success:
                 print(user)
                 data = prompt_new_user()
                 success, user = shared.db.register(data[0], data[1], data[2], data[3])
