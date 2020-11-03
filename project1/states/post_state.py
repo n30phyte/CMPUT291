@@ -46,10 +46,12 @@ class PostState(State):
             # give a badge
             badge = input("What badge?: ")
             shared.db.give_badge(shared.post.poster, badge)
+            print("Badge given!")
         elif action == "5" and shared.user.is_privileged():
             # add a tag
             tags = input("Tags to add: ").split()
             shared.db.tag_post(shared.post, tags)
+            print("Tags added")
         elif action == "6" and shared.user.is_privileged():
             # edit
             self.manager.change_state("edit")

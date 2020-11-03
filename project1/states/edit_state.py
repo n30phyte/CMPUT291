@@ -10,7 +10,7 @@ class EditState(State):
 
     def loop(self):
         print("Title: " + shared.post.title)
-        print("Body: " + shrade.post.body)
+        print("Body: " + shared.post.body)
         print(term.move_down())
 
         title = input("New Title: ")
