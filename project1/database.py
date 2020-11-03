@@ -190,10 +190,15 @@ class Database:
             self.connection.commit()
 
     def search_post(self, keywords: str) -> List[Post]:
-        search_query = "SELECT * FROM posts;"
+
+        query = ("SELECT * FROM posts "
+                 "LEFT JOIN tags ON posts.pid=tags.pid "
+                 "WHERE title LIKE :key OR body LIKE :key OR tags.tag LIKE :key;")
 
         results = []
         for keyword in keywords.split():
-            self.cursor.execute(search_query)
-            test = self.cursor.fetchall()
-            results.extend(test)
+            self.cursor.execute(query, {"key": "%{}%".format(keyword)})
+            search_result = self.cursor.fetchall()
+            results.extend(search_result)
+
+        return results
