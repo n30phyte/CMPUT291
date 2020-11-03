@@ -35,11 +35,11 @@ class LoginState(State):
             tries = 0
             while tries < 3:
                 uid, pw = prompt_returning_user()
-                success, user = shared.db.login(uid, pw)
+                success, shared.user = shared.db.login(uid, pw)
                 if success:
                     break
                 else:
-                    print(user)
+                    print(shared.user)
                 tries += 1
         elif action == "2":
             print("Create a new account:")
@@ -48,13 +48,13 @@ class LoginState(State):
             while not success:
                 print(user)
                 uid, pw, name, city = prompt_new_user()
-                success, user = shared.db.register(uid, pw, name, city)
+                success, shared.user = shared.db.register(uid, pw, name, city)
         elif action == "3":
             exit(0)
         else:
             self.enter()
-            print(user_type + " is not a valid opion, please try again...")
+            print(action + " is not a valid opion, please try again...")
             return
 
-        shared.user = user
+        # shared.user = user
         self.manager.change_state("menu")

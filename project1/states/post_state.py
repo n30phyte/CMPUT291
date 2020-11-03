@@ -1,11 +1,12 @@
 from state_manager import State
-from shared import *
+from shared import term
+import shared
 
 
 class PostState(State):
     def enter(self):
         print(term.home + term.clear + term.move_y(term.height // 2))
-        print(term.black_on_darkkhaki(term.center("Post")))
+        print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
 
     def loop(self):
         # todo: if question, show all answers below
@@ -17,7 +18,7 @@ class PostState(State):
         # print actions
         print("1. Answer")
         print("2. Vote")
-        if user.is_privileged():
+        if shared.user.is_privileged():
             print("3. Mark as accepted")
             print("4. Give a badge")
             print("5. Add a tag")
@@ -35,18 +36,18 @@ class PostState(State):
                 print("Post has been voted")
             else:
                 print("You already voted this post")
-        elif action == "3" and user.is_privileged():
+        elif action == "3" and shared.user.is_privileged():
             # mark as accepted
             pass
-        elif action == "4" and user.is_privileged():
+        elif action == "4" and shared.user.is_privileged():
             # give a badge
             badge = input("What badge?: ")
             # shared.db.give_badge(badge, shared.post)
-        elif action == "5" and user.is_privileged():
+        elif action == "5" and shared.user.is_privileged():
             # add a tag
             tags = input("Tags to add: ").split()
             shared.db.tag_post(shared.post, tags)
-        elif action == "6" and user.is_privileged():
+        elif action == "6" and shared.user.is_privileged():
             # edit
             pass
         elif action == "7":
