@@ -12,6 +12,9 @@ class PostState(State):
         # todo: if answer, show question
         print("Title: {}".format(shared.post.title))
         print("Body: {}".format(shared.post.body))
+        print("Score: {}".format(shared.post.score))
+        print("Author: {}".format(shared.post.poster.name))
+        print("Tags: {}".format(shared.post.tags))
 
         print(term.move_down(2))
         # print actions
