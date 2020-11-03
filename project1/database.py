@@ -187,14 +187,12 @@ class Database:
             self.vno_max += 1
             self.connection.commit()
 
-    def search_post(self, keywords: List[str]) -> List[Post]:
-        # Could probably combine, using the sql commands from the last assignment
-        title_search = "SELECT * FROM posts WHERE title LIKE ?;"
-        body_search = "SELECT * FROM posts WHERE body LIKE ?;"
-        # TODO: Make this work
-        output = []
+    def search_post(self, keywords: str) -> List[Post]:
+        search_query = "SELECT * FROM posts " \
+                       "JOIN tags ON posts.pid = tags.pid " \
+                       "WHERE title LIKE ? OR body LIKE ? OR tag LIKE ?;"
 
-        for result in self.cursor.fetchall():
-            output.append(Post(*result))
-
-        return output
+        results = []
+        for keyword in keywords.split():
+            self.cursor.execute(search_query, (keyword, keyword, keyword))
+            results.append(self.cursor.fetchall())
