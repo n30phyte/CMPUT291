@@ -12,3 +12,4 @@ class QuestionState(State):
         title = input("Title: ")
         body = input("Body: ")
         shared.post = shared.db.new_question(title, body, shared.user)
+        self.manager.change_state("post")

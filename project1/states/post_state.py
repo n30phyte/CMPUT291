@@ -8,8 +8,8 @@ class PostState(State):
         print(term.black_on_darkkhaki(term.center("Post")))
 
     def loop(self):
-        # todo: bold and upsize title?
-        # todo: obtain post data somehow
+        # todo: if question, show all answers below
+        # todo: if answer, show question
         print("Title: {}".format(shared.post.title))
         print("Body: {}".format(shared.post.body))
 
@@ -28,18 +28,26 @@ class PostState(State):
         if action == "1":
             # answer
             pass
-        elif action == "1":
-            # vote
-            pass
         elif action == "2":
-            pass
+            # vote
+            voted = shared.db.vote_post(shared.post, shared.user)
+            if voted:
+                print("Post has been voted")
+            else:
+                print("You already voted this post")
         elif action == "3" and user.is_privileged():
+            # mark as accepted
             pass
         elif action == "4" and user.is_privileged():
-            pass
+            # give a badge
+            badge = input("What badge?: ")
+            # shared.db.give_badge(badge, shared.post)
         elif action == "5" and user.is_privileged():
-            pass
+            # add a tag
+            tags = input("Tags to add: ").split()
+            shared.db.tag_post(shared.post, tags)
         elif action == "6" and user.is_privileged():
+            # edit
             pass
         elif action == "7":
             self.manager.change_state("menu")
