@@ -8,14 +8,12 @@ class PostState(State):
     def enter(self):
         print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
-
-    def loop(self):
         # todo: if question, show all answers below
         # todo: if answer, show question
         print("Title: {}".format(shared.post.title))
         print("Body: {}".format(shared.post.body))
 
-        print(term.move_y(2))
+        print(term.move_down(2))
         # print actions
         print("1. Answer")
         print("2. Vote")
@@ -26,10 +24,14 @@ class PostState(State):
             print("6. Edit")
         print("7. Back to menu")
 
-        action = input("Select an action: ")
+        print("Select an action: ")
+
+    def loop(self):
+        with term.cbreak(), term.hidden_cursor():
+            action = term.inkey()
         if action == "1":
             # answer
-            pass
+            self.manager.change_state("answer")
         elif action == "2":
             # vote
             voted = shared.db.vote_post(shared.post, shared.user)
@@ -38,19 +40,19 @@ class PostState(State):
             else:
                 print("You already voted this post")
         elif action == "3" and shared.user.is_privileged():
-            # mark as accepted
+            # mark as accepted: AZEEZ
             pass
         elif action == "4" and shared.user.is_privileged():
             # give a badge
             badge = input("What badge?: ")
-            # shared.db.give_badge(badge, shared.post)
+            shared.db.give_badge(shared.post.poster, badge)
         elif action == "5" and shared.user.is_privileged():
             # add a tag
             tags = input("Tags to add: ").split()
             shared.db.tag_post(shared.post, tags)
         elif action == "6" and shared.user.is_privileged():
             # edit
-            pass
+            self.manager.change_state("edit")
         elif action == "7":
             self.manager.change_state("menu")
         else:

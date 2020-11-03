@@ -13,6 +13,7 @@ if __name__ == "__main__":
     sm.add_state(QuestionState(), "question")
     sm.add_state(SearchState(), "search")
     sm.add_state(AnswerState(), "answer")
+    sm.add_state(EditState(), "edit")
 
     sm.start("login")
 
