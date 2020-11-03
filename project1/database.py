@@ -7,6 +7,36 @@ from post import Post
 from user import User
 
 
+def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str]:
+    output = []
+
+    if existing is None:
+        tag_set = set()
+    else:
+        tag_set = existing
+
+    # Add them all to the set
+    for tag in tags:
+        if tag.lower() not in tag_set:
+            output.append(tag)
+            tag_set.add(tag.lower())
+
+    return output
+
+
+def count_keywords(post: Post, keywords: str):
+    search_rank = 0
+
+    for keyword in keywords.split():
+        result = [keyword.lower in post.title.lower().split(),  # In title
+                  keyword in post.body.lower().split(),  # In body
+                  keyword in [tag.lower() for tag in post.tags]  # In tags
+                  ]
+        search_rank += sum(result)
+
+    post.search_rank = search_rank
+
+
 class Database:
     # Avoid injection by doing cursor.execute("(STATEMENT) ?", args)
     # https://stackoverflow.com/questions/13613037/
@@ -146,7 +176,7 @@ class Database:
         for tag_entries in self.get_tags(post):
             existing_tags.add(tag_entries.lower())
 
-        new_tags = self.deduplicate_tag_list(tags, existing_tags)
+        new_tags = deduplicate_tag_list(tags, existing_tags)
 
         # Go through the list and add the tags one by one, keeping casing
         for tag in new_tags:
@@ -201,10 +231,12 @@ class Database:
                 self.set_score(current_result)
                 current_result.tags = self.get_tags(current_result)
 
+                count_keywords(current_result, keywords)
+
                 output.append(current_result)
                 output_posts.add(result[0])
 
-        return results
+        return output
 
     def accept_answer(self, answer_post: Post):
         query = "UPDATE questions SET theaid = ? WHERE pid = ?;"
@@ -246,7 +278,7 @@ class Database:
 
     def get_tags(self, post: Post) -> List[str]:
         # Get all existing tags for the post
-        self.cursor.execute("SELECT * FROM tags WHERE tags.pid = ?;", (post.post_id, ))
+        self.cursor.execute("SELECT * FROM tags WHERE tags.pid = ?;", (post.post_id,))
         tags = []
 
         # Add them all to the set
@@ -261,20 +293,3 @@ class Database:
         score = self.cursor.fetchone()
 
         post.score = score
-
-    @staticmethod
-    def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str]:
-        output = []
-
-        if existing is None:
-            tag_set = set()
-        else:
-            tag_set = existing
-
-        # Add them all to the set
-        for tag in tags:
-            if tag.lower() not in tag_set:
-                output.append(tag)
-                tag_set.add(tag.lower())
-
-        return output

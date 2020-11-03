@@ -18,6 +18,8 @@ class Post:
 
     score = 0
 
+    search_rank = 0
+
     def __init__(self, post_id: str, date: str, title: str, body: str, poster: User):
         self.post_id = post_id
         self.date = date
