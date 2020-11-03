@@ -159,14 +159,17 @@ class TestPosts(unittest.TestCase):
 
         # Check for presence in db
         accepted_ans = self.db.cursor.execute(
-            "SELECT * FROM posts JOIN questions ON questions.theaid = posts.pid;").fetchall()
+            "SELECT * FROM posts JOIN questions ON questions.theaid = posts.pid;"
+        ).fetchall()
 
         len(accepted_ans)
 
         self.db.tag_post(question, ["Rust", "Python", "languages", "pyThoN", "project"])
         self.db.tag_post(question, ["rUST", "PyThOn", "LanguAgES", "Project"])
 
-        tag_count_db = self.db.cursor.execute("SELECT * FROM tags WHERE pid = ?;", (question.post_id,)).fetchall()
+        tag_count_db = self.db.cursor.execute(
+            "SELECT * FROM tags WHERE pid = ?;", (question.post_id,)
+        ).fetchall()
 
         self.assertEqual(len(question.tags), len(tag_count_db))
 
@@ -175,9 +178,10 @@ class TestPosts(unittest.TestCase):
 
         self.db.tag_post(good_ans, ["Hard"])
 
-        tag_count_db = self.db.cursor.execute("SELECT * FROM tags WHERE pid = ?;", (good_ans.post_id,)).fetchall()
+        tag_count_db = self.db.cursor.execute(
+            "SELECT * FROM tags WHERE pid = ?;", (good_ans.post_id,)
+        ).fetchall()
         self.assertEqual(1, len(tag_count_db))
-
 
     def testSearchPost(self):
         results_hard = self.db.search_post("Hard")

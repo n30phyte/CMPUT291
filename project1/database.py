@@ -28,10 +28,11 @@ def count_keywords(post: Post, keywords: str):
     search_rank = 0
 
     for keyword in keywords.split():
-        result = [keyword.lower in post.title.lower().split(),  # In title
-                  keyword in post.body.lower().split(),  # In body
-                  keyword in [tag.lower() for tag in post.tags]  # In tags
-                  ]
+        result = [
+            keyword.lower in post.title.lower().split(),  # In title
+            keyword in post.body.lower().split(),  # In body
+            keyword in [tag.lower() for tag in post.tags],  # In tags
+        ]
         search_rank += sum(result)
 
     post.search_rank = search_rank
@@ -107,7 +108,7 @@ class Database:
             return False, "Incorrect Password or user does not exist"
 
     def register(
-            self, uid: str, password: str, name: str = "", city: str = ""
+        self, uid: str, password: str, name: str = "", city: str = ""
     ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
@@ -180,7 +181,9 @@ class Database:
 
         # Go through the list and add the tags one by one, keeping casing
         for tag in new_tags:
-            self.cursor.execute("INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag))
+            self.cursor.execute(
+                "INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag)
+            )
             self.connection.commit()
 
         post.tags.extend(new_tags)
@@ -226,7 +229,9 @@ class Database:
             if result[0] not in output_posts:
                 poster = self.get_user(result[4])
 
-                current_result = Post(result[0], result[1], result[2], result[3], poster)
+                current_result = Post(
+                    result[0], result[1], result[2], result[3], poster
+                )
 
                 self.set_score(current_result)
                 current_result.tags = self.get_tags(current_result)
@@ -256,7 +261,9 @@ class Database:
     def edit_post(self, edited_post: Post):
         statement = "UPDATE posts SET title = ?, body = ? WHERE posts.pid = ?;"
 
-        self.cursor.execute(statement, (edited_post.title, edited_post.body, edited_post.post_id))
+        self.cursor.execute(
+            statement, (edited_post.title, edited_post.body, edited_post.post_id)
+        )
         self.connection.commit()
 
     def get_privileged(self, uid: str) -> bool:
@@ -272,7 +279,10 @@ class Database:
             return False
 
     def get_user(self, uid: str) -> User:
-        self.cursor.execute("SELECT * FROM users WHERE (users.uid LIKE ?);", (uid,), )
+        self.cursor.execute(
+            "SELECT * FROM users WHERE (users.uid LIKE ?);",
+            (uid,),
+        )
         result = self.cursor.fetchone()
         return User(*result, privileged=self.get_privileged(uid))
 
@@ -288,7 +298,9 @@ class Database:
         return tags
 
     def set_score(self, post: Post):
-        self.cursor.execute("SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;", (post.post_id,))
+        self.cursor.execute(
+            "SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;", (post.post_id,)
+        )
 
         score = self.cursor.fetchone()
 
