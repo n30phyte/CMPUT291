@@ -39,12 +39,12 @@ class Database:
                 self.cursor.execute("SELECT MAX(pid) FROM posts;")
                 result = self.cursor.fetchone()
                 if result[0] is not None:
-                    self.pid_max = result[0]
+                    self.pid_max = int(result[0]) + 1
 
                 self.cursor.execute("SELECT MAX(vno) FROM votes;")
                 result = self.cursor.fetchone()
                 if result[0] is not None:
-                    self.vno_max = result[0]
+                    self.vno_max = int(result[0]) + 1
 
         except sqlite3.Error as e:  # pragma: no cover
             print("Error while connecting to database: %s" % e)
@@ -77,7 +77,7 @@ class Database:
             return False, "Incorrect Password or user does not exist"
 
     def register(
-        self, uid: str, password: str, name: str = "", city: str = ""
+            self, uid: str, password: str, name: str = "", city: str = ""
     ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
@@ -106,7 +106,7 @@ class Database:
             self.cursor.execute(statement, (uid, name, password, city, today))
 
         self.connection.commit()
-        return True, self.login(uid, password)
+        return self.login(uid, password)
 
     def get_privileged(self, uid: str) -> bool:
         self.cursor.execute(
@@ -151,7 +151,7 @@ class Database:
 
         return post
 
-    def tag_post(self, post: Post):
+    def tag_post(self, post: Post, tags: List[str]):
         # Get all existing tags for the post
         self.cursor.execute("SELECT tag FROM tags WHERE pid = ?;", (post.post_id,))
 
@@ -162,11 +162,13 @@ class Database:
             existing_tags.add(tag_entries[0].lower())
 
         # Go through the list and add the tags one by one, keeping casing
-        for tag in post.tags:
+        for tag in tags:
             if tag.lower() not in existing_tags:
                 self.cursor.execute(
                     "INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag)
                 )
+
+        post.tags.extend(tags)
 
         self.connection.commit()
 
@@ -188,11 +190,10 @@ class Database:
             self.connection.commit()
 
     def search_post(self, keywords: str) -> List[Post]:
-        search_query = "SELECT * FROM posts " \
-                       "JOIN tags ON posts.pid = tags.pid " \
-                       "WHERE title LIKE ? OR body LIKE ? OR tag LIKE ?;"
+        search_query = "SELECT * FROM posts;"
 
         results = []
         for keyword in keywords.split():
-            self.cursor.execute(search_query, (keyword, keyword, keyword))
-            results.append(self.cursor.fetchall())
+            self.cursor.execute(search_query)
+            test = self.cursor.fetchall()
+            results.extend(test)
