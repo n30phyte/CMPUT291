@@ -12,4 +12,16 @@ class SearchState(State):
     def loop(self):
         keywords = input()
         results = shared.db.search_post(keywords.split())
-        # todo: display search results
+        # todo: display search results: columns of posts table + num votes + num answers if question
+        # for i in range(5):
+        #   print("{}. {}".format(i+1, result[i]))
+        # print("6. Show more")
+        print("Select a post or action")
+        action = input()
+
+        if action < "6":
+            # go to that post
+            pass
+        else:
+            # show more
+            pass
