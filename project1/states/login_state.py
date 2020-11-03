@@ -1,32 +1,36 @@
 from state_manager import State
 from shared import term
 import shared
+import getpass
 
 
 def prompt_returning_user():
     uid = input("User ID: ")
-    pw = input("Password: ")
+    pw = getpass.getpass("Password: ")
     return uid, pw
 
 
 def prompt_new_user():
     uid = input("User ID: ")
-    pw = input("Password: ")
+    pw = getpass.getpass("Password: ")
     name = input("Name: ")
     city = input("City: ")
-    return [uid, pw, name, city]
+    return uid, pw, name, city
 
 
 class LoginState(State):
     def enter(self):
         print(term.home + term.clear + term.move_y(term.height // 2))
-        print(term.black_on_darkkhaki(term.center('New or returning user? (n/r)')))
+        print(term.black_on_darkkhaki(term.center('Welcome!')))
+        print("1. Login")
+        print("2. Register")
+        print("3. Exit")
 
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
-            user_type = term.inkey()
+            action = term.inkey()
 
-        if user_type == "r":
+        if action == "1":
             print("Login:")
             tries = 0
             while tries < 3:
@@ -37,17 +41,16 @@ class LoginState(State):
                 else:
                     print(user)
                 tries += 1
-        elif user_type == "n":
+        elif action == "2":
             print("Create a new account:")
-            uid = input("User ID: ")
-            pw = input("Password: ")
-            name = input("Name: ")
-            city = input("City: ")
+            uid, pw, name, city = prompt_new_user()
             success, user = shared.db.register(uid, pw, name, city)
             while not success:
                 print(user)
-                data = prompt_new_user()
-                success, user = shared.db.register(data[0], data[1], data[2], data[3])
+                uid, pw, name, city = prompt_new_user()
+                success, user = shared.db.register(uid, pw, name, city)
+        elif action == "3":
+            exit(0)
         else:
             self.enter()
             print(user_type + " is not a valid opion, please try again...")

@@ -8,35 +8,49 @@ class PostState(State):
         print(term.black_on_darkkhaki(term.center("Post")))
 
     def loop(self):
-        # todo: bold and upsize title?
-        # todo: obtain post data somehow
-        print("Title: ")
-        print("Body: ")
+        # todo: if question, show all answers below
+        # todo: if answer, show question
+        print("Title: {}".format(shared.post.title))
+        print("Body: {}".format(shared.post.body))
 
         print(term.move_y(2))
         # print actions
-        action_num = 0
-        print("{}. Answer".format(action_num))
-        action_num += 1
-        print("{}. Vote".format(action_num))
-        action_num += 1
+        print("1. Answer")
+        print("2. Vote")
         if user.is_privileged():
-            print("{}. Mark as accepted".format(action_num))
-            action_num += 1
-            print("{}. Give a badge".format(action_num))
-            action_num += 1
-            print("{}. Add a tag".format(action_num))
-            action_num += 1
-            print("{}. Edit".format(action_num))
-            action_num += 1
-        print("{}. Exit".format(action_num))
+            print("3. Mark as accepted")
+            print("4. Give a badge")
+            print("5. Add a tag")
+            print("6. Edit")
+        print("7. Back to menu")
 
         action = input("Select an action: ")
-        if action == "0":
+        if action == "1":
             # answer
             pass
-        elif action == "1":
+        elif action == "2":
             # vote
+            voted = shared.db.vote_post(shared.post, shared.user)
+            if voted:
+                print("Post has been voted")
+            else:
+                print("You already voted this post")
+        elif action == "3" and user.is_privileged():
+            # mark as accepted
             pass
-        # todo: which way is best to split into priv and non priv user paths
+        elif action == "4" and user.is_privileged():
+            # give a badge
+            badge = input("What badge?: ")
+            # shared.db.give_badge(badge, shared.post)
+        elif action == "5" and user.is_privileged():
+            # add a tag
+            tags = input("Tags to add: ").split()
+            shared.db.tag_post(shared.post, tags)
+        elif action == "6" and user.is_privileged():
+            # edit
+            pass
+        elif action == "7":
+            self.manager.change_state("menu")
+        else:
+            print(action + " is not a valid option, please try again...")
 
