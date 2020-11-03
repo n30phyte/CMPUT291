@@ -161,7 +161,7 @@ class Database:
         statement = "INSERT INTO posts (pid, pdate, title, body, poster) VALUES (?, ?, ?, ?, ?);"
 
         today = date.today().strftime("%Y-%m-%d")
-        post = Post(format(self.pid_max, "x"), today, title, body, poster)
+        post = Post(self.pid_max, today, title, body, poster)
         self.pid_max += 1
 
         self.cursor.execute(
@@ -200,7 +200,7 @@ class Database:
             today = date.today().strftime("%Y-%m-%d")
             statement = "INSERT INTO votes (pid, vno, vdate, uid) VALUES (?, ?, ?, ?);"
             self.cursor.execute(
-                statement, (post.post_id, format(self.vno_max, "x"), today, voter.uid)
+                statement, (post.post_id, self.vno_max, "x", today, voter.uid)
             )
             self.vno_max += 1
             self.connection.commit()
