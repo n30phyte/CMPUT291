@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from datetime import date
-from typing import Tuple, List
+from typing import Tuple, List, Set
 
 from post import Post
 from user import User
@@ -77,7 +77,7 @@ class Database:
             return False, "Incorrect Password or user does not exist"
 
     def register(
-        self, uid: str, password: str, name: str = "", city: str = ""
+            self, uid: str, password: str, name: str = "", city: str = ""
     ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
@@ -107,18 +107,6 @@ class Database:
 
         self.connection.commit()
         return self.login(uid, password)
-
-    def get_privileged(self, uid: str) -> bool:
-        self.cursor.execute(
-            "SELECT * FROM privileged WHERE privileged.uid = ?;", (uid,)
-        )
-
-        result = self.cursor.fetchall()
-
-        if len(result) == 1:
-            return True
-        else:
-            return False
 
     def new_question(self, title: str, body: str, poster: User) -> Post:
         post = self.new_post(title, body, poster)
@@ -152,25 +140,20 @@ class Database:
         return post
 
     def tag_post(self, post: Post, tags: List[str]):
-        # Get all existing tags for the post
-        self.cursor.execute("SELECT tag FROM tags WHERE pid = ?;", (post.post_id,))
-
         existing_tags = set()
 
         # Add them all to the set
-        for tag_entries in self.cursor.fetchall():
-            existing_tags.add(tag_entries[0].lower())
+        for tag_entries in self.get_tags(post):
+            existing_tags.add(tag_entries.lower())
+
+        new_tags = self.deduplicate_tag_list(tags, existing_tags)
 
         # Go through the list and add the tags one by one, keeping casing
-        for tag in tags:
-            if tag.lower() not in existing_tags:
-                self.cursor.execute(
-                    "INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag)
-                )
+        for tag in new_tags:
+            self.cursor.execute("INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag))
+            self.connection.commit()
 
-        post.tags.extend(tags)
-
-        self.connection.commit()
+        post.tags.extend(new_tags)
 
     def vote_post(self, post: Post, voter: User) -> bool:
         self.cursor.execute(
@@ -193,17 +176,33 @@ class Database:
         return False
 
     def search_post(self, keywords: str) -> List[Post]:
-        query = (
+        search_query = (
             "SELECT * FROM posts "
             "LEFT JOIN tags ON posts.pid=tags.pid "
-            "WHERE title LIKE :key OR body LIKE :key OR tags.tag LIKE :key;"
+            "WHERE title LIKE :key OR body LIKE :key OR tags.tag LIKE :key "
+            "GROUP BY posts.pid;"
         )
 
         results = []
         for keyword in keywords.split():
-            self.cursor.execute(query, {"key": "%{}%".format(keyword)})
+            self.cursor.execute(search_query, {"key": "%{}%".format(keyword)})
             search_result = self.cursor.fetchall()
             results.extend(search_result)
+
+        output = []
+        output_posts = set()
+
+        for result in results:
+            if result[0] not in output_posts:
+                poster = self.get_user(result[4])
+
+                current_result = Post(result[0], result[1], result[2], result[3], poster)
+
+                self.set_score(current_result)
+                current_result.tags = self.get_tags(current_result)
+
+                output.append(current_result)
+                output_posts.add(result[0])
 
         return results
 
@@ -212,6 +211,7 @@ class Database:
 
         self.cursor.execute(query, (answer_post.post_id, answer_post.question_id))
         self.connection.commit()
+        answer_post.set_as_accepted()
 
     def give_badge(self, awardee: User, badge_name: str):
         query = "INSERT INTO ubadges(uid, bdate, bname) VALUES (?, ?, ?);"
@@ -222,7 +222,59 @@ class Database:
         self.connection.commit()
 
     def edit_post(self, edited_post: Post):
-        statement = "UPDATE posts SET title = ?, body = ?;"
+        statement = "UPDATE posts SET title = ?, body = ? WHERE posts.pid = ?;"
 
-        self.cursor.execute(statement, (edited_post.title, edited_post.body))
+        self.cursor.execute(statement, (edited_post.title, edited_post.body, edited_post.post_id))
         self.connection.commit()
+
+    def get_privileged(self, uid: str) -> bool:
+        self.cursor.execute(
+            "SELECT * FROM privileged WHERE privileged.uid = ?;", (uid,)
+        )
+
+        result = self.cursor.fetchall()
+
+        if len(result) == 1:
+            return True
+        else:
+            return False
+
+    def get_user(self, uid: str) -> User:
+        self.cursor.execute("SELECT * FROM users WHERE (users.uid LIKE ?);", (uid,), )
+        result = self.cursor.fetchone()
+        return User(*result, privileged=self.get_privileged(uid))
+
+    def get_tags(self, post: Post) -> List[str]:
+        # Get all existing tags for the post
+        self.cursor.execute("SELECT * FROM tags WHERE tags.pid = ?;", (post.post_id, ))
+        tags = []
+
+        # Add them all to the set
+        for tag_entries in self.cursor.fetchall():
+            tags.append(tag_entries[1])
+
+        return tags
+
+    def set_score(self, post: Post):
+        self.cursor.execute("SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;", (post.post_id,))
+
+        score = self.cursor.fetchone()
+
+        post.score = score
+
+    @staticmethod
+    def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str]:
+        output = []
+
+        if existing is None:
+            tag_set = set()
+        else:
+            tag_set = existing
+
+        # Add them all to the set
+        for tag in tags:
+            if tag.lower() not in tag_set:
+                output.append(tag)
+                tag_set.add(tag.lower())
+
+        return output

@@ -84,9 +84,11 @@ class TestUser(unittest.TestCase):
 
     def testRegisterFail(self):
         mike = self.db.register("n30phyte", "Mike", "1234", "Jakarta")
+        shadow = self.db.register("shad", "shadow", "", "")
 
         # Test for failure registering
         self.assertFalse(mike[0])
+        self.assertFalse(shadow[0])
 
 
 class TestPosts(unittest.TestCase):
@@ -94,7 +96,7 @@ class TestPosts(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.db = Database(":memory:")
+        cls.db = Database("db/unittest.db")
 
         add_user = (
             "INSERT INTO users (uid, name, pwd, city, crdate) VALUES(?, ?, ?, ?, ?);"
@@ -151,6 +153,38 @@ class TestPosts(unittest.TestCase):
         votes = self.db.cursor.execute("SELECT * FROM votes;").fetchall()
 
         self.assertEqual(len(votes), 2)
+
+        # Accept good ans
+        self.db.accept_answer(good_ans)
+
+        # Check for presence in db
+        accepted_ans = self.db.cursor.execute(
+            "SELECT * FROM posts JOIN questions ON questions.theaid = posts.pid;").fetchall()
+
+        len(accepted_ans)
+
+        self.db.tag_post(question, ["Rust", "Python", "languages", "pyThoN", "project"])
+        self.db.tag_post(question, ["rUST", "PyThOn", "LanguAgES", "Project"])
+
+        tag_count_db = self.db.cursor.execute("SELECT * FROM tags WHERE pid = ?;", (question.post_id,)).fetchall()
+
+        self.assertEqual(len(question.tags), len(tag_count_db))
+
+        self.assertEqual(4, len(question.tags))
+        self.assertEqual(4, len(tag_count_db))
+
+        self.db.tag_post(good_ans, ["Hard"])
+
+        tag_count_db = self.db.cursor.execute("SELECT * FROM tags WHERE pid = ?;", (good_ans.post_id,)).fetchall()
+        self.assertEqual(1, len(tag_count_db))
+
+
+    def testSearchPost(self):
+        results_hard = self.db.search_post("Hard")
+        results_rs = self.db.search_post("rust")
+
+        self.assertEqual(2, len(results_hard))
+        self.assertEqual(4, len(results_rs))
 
 
 if __name__ == "__main__":  # pragma: no cover

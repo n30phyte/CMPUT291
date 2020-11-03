@@ -12,9 +12,11 @@ class Post:
 
     is_answer = False
     question_id = ""
-    tags = None
+    tags = []
 
     is_accepted = False
+
+    score = 0
 
     def __init__(self, post_id: str, date: str, title: str, body: str, poster: User):
         self.post_id = post_id
@@ -27,5 +29,5 @@ class Post:
         self.is_answer = True
         self.question_id = question_post.post_id
 
-    def set_as_accepted(self, answer_post: "Post"):
+    def set_as_accepted(self):
         self.is_accepted = True
