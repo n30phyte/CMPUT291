@@ -28,12 +28,12 @@ def count_keywords(post: Post, keywords: str):
     search_rank = 0
 
     for keyword in keywords.split():
-        result = [
-            keyword.lower in post.title.lower().split(),  # In title
-            keyword in post.body.lower().split(),  # In body
-            keyword in [tag.lower() for tag in post.tags],  # In tags
-        ]
-        search_rank += sum(result)
+        if (
+            (keyword.lower in post.title.lower().split())
+            or (keyword in post.body.lower().split())
+            or (keyword in [tag.lower() for tag in post.tags])
+        ):
+            search_rank += 1
 
     post.search_rank = search_rank
 
