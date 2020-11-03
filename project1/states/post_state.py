@@ -1,3 +1,4 @@
+import shared
 from state_manager import State
 from shared import term
 import shared
@@ -54,4 +55,3 @@ class PostState(State):
             self.manager.change_state("menu")
         else:
             print(action + " is not a valid option, please try again...")
-

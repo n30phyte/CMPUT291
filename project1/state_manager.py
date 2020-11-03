@@ -5,6 +5,7 @@ class State:
     """
     A generic State Class
     """
+
     stacks = True
     running = False
     manager = None
