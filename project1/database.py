@@ -77,7 +77,7 @@ class Database:
             return False, "Incorrect Password or user does not exist"
 
     def register(
-            self, uid: str, password: str, name: str = "", city: str = ""
+        self, uid: str, password: str, name: str = "", city: str = ""
     ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
@@ -172,7 +172,7 @@ class Database:
 
         self.connection.commit()
 
-    def vote_post(self, post: Post, voter: User):
+    def vote_post(self, post: Post, voter: User) -> bool:
         self.cursor.execute(
             "SELECT uid FROM votes WHERE pid = ? AND uid = ?;",
             (post.post_id, voter.uid),
@@ -188,12 +188,16 @@ class Database:
             )
             self.vno_max += 1
             self.connection.commit()
+            return True
+
+        return False
 
     def search_post(self, keywords: str) -> List[Post]:
-
-        query = ("SELECT * FROM posts "
-                 "LEFT JOIN tags ON posts.pid=tags.pid "
-                 "WHERE title LIKE :key OR body LIKE :key OR tags.tag LIKE :key;")
+        query = (
+            "SELECT * FROM posts "
+            "LEFT JOIN tags ON posts.pid=tags.pid "
+            "WHERE title LIKE :key OR body LIKE :key OR tags.tag LIKE :key;"
+        )
 
         results = []
         for keyword in keywords.split():
@@ -202,3 +206,23 @@ class Database:
             results.extend(search_result)
 
         return results
+
+    def accept_answer(self, answer_post: Post):
+        query = "UPDATE questions SET theaid = ? WHERE pid = ?;"
+
+        self.cursor.execute(query, (answer_post.post_id, answer_post.question_id))
+        self.connection.commit()
+
+    def give_badge(self, awardee: User, badge_name: str):
+        query = "INSERT INTO ubadges(uid, bdate, bname) VALUES (?, ?, ?);"
+
+        today = date.today().strftime("%Y-%m-%d")
+
+        self.cursor.execute(query, (awardee.uid, today, badge_name))
+        self.connection.commit()
+
+    def edit_post(self, edited_post: Post):
+        statement = "UPDATE posts SET title = ?, body = ?;"
+
+        self.cursor.execute(statement, (edited_post.title, edited_post.body))
+        self.connection.commit()
