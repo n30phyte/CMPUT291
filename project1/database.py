@@ -200,3 +200,5 @@ class Database:
             self.cursor.execute(query, {"key": "%{}%".format(keyword)})
             search_result = self.cursor.fetchall()
             results.extend(search_result)
+
+        return results
