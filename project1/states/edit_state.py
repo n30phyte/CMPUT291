@@ -13,9 +13,12 @@ class EditState(State):
         print("Body: " + shared.post.body)
         print(term.move_down())
 
+        print("Edit title/body (leave empty for no change)")
         title = input("New Title: ")
         body = input("New Body: ")
-        shared.post.title = title
-        shared.post.body = body
+        if title != "":
+            shared.post.title = title
+        if body != "":
+            shared.post.body = body
         shared.db.edit_post(shared.post)
         self.manager.change_state("post")

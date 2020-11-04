@@ -19,7 +19,7 @@ def reprint_post():
     # print actions
     print("1. Answer")
     print("2. Vote")
-    if shared.user.is_privileged():
+    if shared.user.privileged:
         print("3. Mark as accepted")
         print("4. Give a badge")
         print("5. Add a tag")
@@ -47,20 +47,20 @@ class PostState(State):
                 print(term.move_y(term.height // 2 + 5) + "Score: {}".format(shared.post.score))
             else:
                 print("You already voted this post")
-        elif action == "3" and shared.user.is_privileged():
+        elif action == "3" and shared.user.privileged:
             # mark as accepted: AZEEZ
             pass
-        elif action == "4" and shared.user.is_privileged():
+        elif action == "4" and shared.user.privileged:
             # give a badge
             badge = input("What badge?: ")
             shared.db.give_badge(shared.post.poster, badge)
             print("Badge given!")
-        elif action == "5" and shared.user.is_privileged():
+        elif action == "5" and shared.user.privileged:
             # add a tag
             tags = input("Tags to add: ").split()
             shared.db.tag_post(shared.post, tags)
             reprint_post()
-        elif action == "6" and shared.user.is_privileged():
+        elif action == "6" and shared.user.privileged:
             # edit
             self.manager.change_state("edit")
         elif action == "7":
