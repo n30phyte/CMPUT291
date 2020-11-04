@@ -4,6 +4,21 @@ from shared import term
 import shared
 
 
+def print_answers(post):
+    answers = shared.db.get_answers(post)
+    if len(answers) > 0: print("Answers:")
+    for answer in answers:
+        print("    Title: {}; Body: {}".format(answer.title, answer.body))
+        print("    Author: {}; Score: {}".format(answer.poster.name, answer.score))
+
+
+def print_question(post):
+    question = shared.db.get_post(post.question_id)
+    print("Question:")
+    print("    Title: {}; Body: {}".format(question.title, question.body))
+    print("    Author: {}; Score: {}".format(question.poster.name, question.score))
+
+
 def reprint_post():
     print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
     # todo: if question, show all answers below
@@ -14,9 +29,15 @@ def reprint_post():
     print("Author: {}".format(shared.post.poster.name))
     print("Tags: {}".format(", ".join(shared.post.tags)))
 
+    if shared.post.is_answer:
+        print_question(shared.post)
+    else:
+        print_answers(shared.post)
+
     print(term.move_down(2))
     # print actions
-    print("1. Answer")
+    if not shared.post.is_answer:
+        print("1. Answer")
     print("2. Vote")
     if shared.user.privileged:
         if shared.post.is_answer:
@@ -35,7 +56,7 @@ class PostState(State):
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
             action = term.inkey()
-        if action == "1":
+        if action == "1" and !shared.post.is_answer:
             # answer
             self.manager.change_state("answer")
         elif action == "2":
@@ -46,8 +67,8 @@ class PostState(State):
                 print(term.move_y(term.height // 2 + 5) + "Score: {}".format(shared.post.score))
             else:
                 print("You already voted this post")
-        elif action == "3" and shared.user.privileged:
-            # mark as accepted: AZEEZ
+        elif action == "3" and shared.user.privileged and shared.post.is_answer:
+            # mark as accepted
             shared.db.accept_answer(shared.post)
             print("Answer Accepted!")
         elif action == "4" and shared.user.privileged:
