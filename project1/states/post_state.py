@@ -30,7 +30,8 @@ def reprint_post():
     print("Tags: {}".format(", ".join(shared.post.tags)))
 
     if shared.post.is_answer:
-        print_question(shared.post)
+        # print_question(shared.post)
+        pass
     else:
         print_answers(shared.post)
 
@@ -74,8 +75,11 @@ class PostState(State):
         elif action == "4" and shared.user.privileged:
             # give a badge
             badge = input("What badge?: ")
-            shared.db.give_badge(shared.post.poster, badge)
-            print("Badge given!")
+            success = shared.db.give_badge(shared.post.poster, badge)
+            if success:
+                print("Badge given!")
+            else:
+                print("You already gave that badge today")
         elif action == "5" and shared.user.privileged:
             # add a tag
             tags = input("Tags to add: ").split()
