@@ -4,6 +4,21 @@ from shared import term
 import shared
 
 
+def print_answers(post):
+    answers = shared.db.get_answers(post)
+    if len(answers) > 0: print("Answers:")
+    for answer in answers:
+        print("    Title: {}; Body: {}".format(answer.title, answer.body))
+        print("    Author: {}; Score: {}".format(answer.poster.name, answer.score))
+
+
+def print_question(post):
+    question = shared.db.get_post(post.question_id)
+    print("Question:")
+    print("    Title: {}; Body: {}".format(question.title, question.body))
+    print("    Author: {}; Score: {}".format(question.poster.name, question.score))
+
+
 def reprint_post():
     print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
     # todo: if question, show all answers below
@@ -13,6 +28,11 @@ def reprint_post():
     print("Score: {}".format(shared.post.score))
     print("Author: {}".format(shared.post.poster.name))
     print("Tags: {}".format(", ".join(shared.post.tags)))
+
+    if shared.post.is_answer:
+        print_question(shared.post)
+    else:
+        print_answers(shared.post)
 
     print(term.move_down(2))
     # print actions
