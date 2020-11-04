@@ -21,7 +21,15 @@
 
 \section{Design}
 
-The project roughly follows the Model-View-Controller pattern, with the \verb|Database| class doing the majority of the data structure and SQL access work.
+The project roughly follows the Model-View-Controller pattern, with the \verb|Database| class doing the majority of the data structure and SQL access work. % TODO: More on the UI and SM??
+
+The \verb|Database| class handles the connection to the database file and determining wether the initial setup script \verb|setup.sql| needs to be run. It gathers the maximum values of pid and vno to keep it monotonically increasing for each new post. Most methods in the database work by producing the expected result as a returned value, such as \verb|login()| returning a \verb|User| object that should be reused. It was written with a functional style in mind, avoiding the mutation of state whenever possible unless it would make sense otherwise. The \verb|User| and \verb|Post| classes are the main return types used by \verb|Database|.
+
+\verb|User| and \verb|Post| contain what would be the records in the database, with relevant information included such as vote count and search ranking for Posts.
+
+The user interface and control flow is handled by a state machine %TODO: Expand
+
+Different states were used for each different interface %TODO
 
 % focus on components requried to deliver the major functions of application
 % describe responsibility + interface of each primary function/class + strucutre + relationships among them
@@ -33,34 +41,35 @@ The \verb|Database| module was mostly developed with Test Driven Development as 
 
 Integration testing was done manually, by testing each state and part of the interface by hand as setting up automated testing for this part would have been overkill.
 
+Most bugs found were logic errors from processing the results from SQL, but a few were due to python's weak typing where things were not returned, or certain things were unexpectedly of the \verb|None| type.
 % - discuss general strategy for testing: scenarios being tested, coverage of test cases[, stats on number of bugs found + nature of bugs]
 
 \section{Groupwork Breakdown}
+
 \begin{itemize}
     \item Azeez
           \begin{itemize}
               \item Built State Machine
               \item Worked States including: Login, Accpeted as Answer
+              \item Wrote some test data
           \end{itemize}
     \item Cynthia
           \begin{itemize}
+              \item Time Estimate: 6 hours
               \item Designed state flow of system
               \item Implemented most different states
               \item Created user interface
           \end{itemize}
     \item Michael
           \begin{itemize}
-              \item
+              \item Time Estimate: 10 hours
+              \item Wrote all of the database wrapper
+              \item Unit tests in \verb|tests.py| and corresponding test data
+              \item Made the \verb|user.py| and \verb|post.py| `models'
           \end{itemize}
 \end{itemize}
 % list breakdown of work items among partners; time spent (estimate) + progress made by each partner
-% michael
-% database.py
-% all object classes
-% azeez
-% state_manager.py
-% cynthia
-% all in states/ except __init__.py
+
 % method of coordination: discord group chat
 
 

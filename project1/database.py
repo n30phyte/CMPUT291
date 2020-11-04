@@ -7,6 +7,8 @@ from post import Post
 from user import User
 
 
+DATE_FORMAT = "%Y-%m-%d"
+
 def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str]:
     """
     Ensure a list of tags doesn't have duplicates, and optionally compare to another list, while keeping case
@@ -165,7 +167,7 @@ class Database:
         if len(result) != 0:
             return False, "Username exists"
         else:
-            today = date.today().strftime("%Y-%m-%d")
+            today = date.today().strftime()
             self.cursor.execute(statement, (uid, name, password, city, today))
 
         self.connection.commit()
@@ -213,7 +215,7 @@ class Database:
     def new_post(self, title: str, body: str, poster: User) -> Post:
         statement = "INSERT INTO posts (pid, pdate, title, body, poster) VALUES (?, ?, ?, ?, ?);"
 
-        today = date.today().strftime("%Y-%m-%d")
+        today = date.today().strftime(DATE_FORMAT)
         post = Post(self.pid_max, today, title, body, poster)
         self.pid_max += 1
 
@@ -251,7 +253,7 @@ class Database:
         result = self.cursor.fetchall()
 
         if len(result) == 0:
-            today = date.today().strftime("%Y-%m-%d")
+            today = date.today().strftime(DATE_FORMAT)
             statement = "INSERT INTO votes (pid, vno, vdate, uid) VALUES (?, ?, ?, ?);"
             self.cursor.execute(
                 statement, (post.get_post_id(), self.vno_max, today, voter.uid)
@@ -304,7 +306,7 @@ class Database:
     def give_badge(self, awardee: User, badge_name: str):
         query = "INSERT INTO ubadges(uid, bdate, bname) VALUES (?, ?, ?);"
 
-        today = date.today().strftime("%Y-%m-%d")
+        today = date.today().strftime(DATE_FORMAT)
 
         try:
             self.cursor.execute(query, (awardee.uid, today, badge_name))
