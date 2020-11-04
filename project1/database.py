@@ -71,16 +71,21 @@ class Database:
 
     def __init__(self, db_filename: str):
         """
-
-        :param db_filename:
+        Constructor for database mega class
+        :param db_filename: Location of db file, may not exist.
         """
         self.filename = db_filename
+
         # Check if exists
         if not os.path.exists(self.filename):
             self.first_time = True
+
         self.setup()
 
     def setup(self):
+        """
+        More initialization code, along with checking if the setup sql script needs to be run
+        """
         try:
             self.connection = sqlite3.connect(self.filename)
             self.cursor = self.connection.cursor()
@@ -104,6 +109,9 @@ class Database:
             print("Error while connecting to database: %s" % e)
 
     def init_sql(self):
+        """
+        Run setup sql script provided to define database schema
+        """
         with open("db/setup.sql") as command_file:
             setup_queries = command_file.read()
             self.cursor.executescript(setup_queries)
@@ -143,6 +151,7 @@ class Database:
         :return: A tuple with a boolean and a User object. If register was successful, bool will be true and User will
         exist. Otherwise, result is (false, None).
         """
+
         if len(uid) > 4 or len(uid) <= 0:
             return False, "Username should be between 1 and 4 characters"
 
@@ -171,6 +180,7 @@ class Database:
         :param poster: The user that posted
         :return: The post created
         """
+
         post = self.new_post(title, body, poster)
         self.cursor.execute(
             "INSERT INTO questions (pid) VALUES (?);", (post.get_post_id(),)
@@ -183,12 +193,13 @@ class Database:
         """
         Reply to a question as an answer
 
-        :param title:
-        :param body:
-        :param poster:
-        :param question:
-        :return:
+        :param title: Title of answer
+        :param body: Body of answer
+        :param poster: Answering user
+        :param question: Question to answer
+        :return: The new post made by answering
         """
+
         post = self.new_post(title, body, poster)
         post.set_as_answer(question)
         self.cursor.execute(
@@ -310,6 +321,13 @@ class Database:
         self.connection.commit()
 
     def get_privileged(self, uid: str) -> bool:
+        """
+        Check if specific user is privileged
+
+        :param uid: uid of user
+        :return: True if privileged, false otherwise
+        """
+
         self.cursor.execute(
             "SELECT * FROM privileged WHERE privileged.uid = ?;", (uid,)
         )
@@ -322,6 +340,12 @@ class Database:
             return False
 
     def get_user(self, uid: str) -> User:
+        """
+        Get a user based on their uid
+        :param uid: User's ID
+        :return: User object
+        """
+
         self.cursor.execute(
             "SELECT * FROM users WHERE (users.uid LIKE ?);",
             (uid,),
@@ -330,19 +354,30 @@ class Database:
         return User(*result, privileged=self.get_privileged(uid))
 
     def get_tags(self, post: Post) -> List[str]:
-        # Get all existing tags for the post
+        """
+        Get existing tags for a post
+        :param post: Target post
+        :return: List of tags
+        """
+
         self.cursor.execute(
             "SELECT * FROM tags WHERE tags.pid = ?;", (post.get_post_id(),)
         )
         tags = []
 
-        # Add them all to the set
+        # Add them all to the list
         for tag_entries in self.cursor.fetchall():
             tags.append(tag_entries[1])
 
         return tags
 
     def set_score(self, post: Post):
+        """
+        Calculates and sets the score for specified post where score is the total votes
+
+        :param post: Post to be scored
+        """
+
         self.cursor.execute(
             "SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;",
             (post.get_post_id(),),

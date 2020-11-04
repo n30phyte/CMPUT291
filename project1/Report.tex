@@ -1,20 +1,57 @@
+\RequirePackage[l2tabu, orthodox]{nag}
 \documentclass{article}
+
+\usepackage[margin=1.9cm, letterpaper]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{graphicx}
+
+\title{CMPUT 291 Mini Project 1 Report}
+\date{November 2020}
+\author{Abdul-Azeez Abass (abass)\\
+\and Cynthia Li (sqli)\\
+\and Michael Kwok (mkwok1)}
 
 \begin{document}
 
+\maketitle
 
 \section{Project Overview}
 % Add high level intro
 % may include diagram showing flow of data between different components
 
 \section{Design}
+
+The project roughly follows the Model-View-Controller pattern, with the \verb|Database| class doing the majority of the data structure and SQL access work.
+
 % focus on components requried to deliver the major functions of application
 % describe responsibility + interface of each primary function/class + strucutre + relationships among them
 
 \section{Testing Strategy}
-- discuss general strategy for testing: scenarios being tested, coverage of test cases[, stats on number of bugs found + nature of bugs]
+Since each component of the system was developed seperately and at different times with the \verb|Database| module coming first, it has a suite of unit tests which currently has about 70\% coverage of the file.
+
+The \verb|Database| module was mostly developed with Test Driven Development as the main process, which allowed progess to be tracked, and code to be tested as it was written. The output of functions were compared with similar but not identical SQL commands directly to the database to verify that each function ran as expected. Both failure and success situations were tested in test suite, making sure that the specification was provided was followed.
+
+Integration testing was done manually, by testing each state and part of the interface by hand as setting up automated testing for this part would have been overkill.
+
+% - discuss general strategy for testing: scenarios being tested, coverage of test cases[, stats on number of bugs found + nature of bugs]
 
 \section{Groupwork Breakdown}
+\begin{itemize}
+    \item Azeez
+          \begin{itemize}
+              \item
+          \end{itemize}
+    \item Cynthia
+          \begin{itemize}
+              \item
+          \end{itemize}
+    \item Michael
+          \begin{itemize}
+              \item
+          \end{itemize}
+\end{itemize}
 % list breakdown of work items among partners; time spent (estimate) + progress made by each partner
 % michael
 % database.py
