@@ -6,9 +6,10 @@ class MenuState(State):
     def enter(self):
         print(term.home + term.clear + term.move_y(0))
         print(term.black_on_darkkhaki(term.center("Menu")))
-        print(term.move_down() + "1. Post a question" + "\n" + "2. Search posts")
-        print("3. Logout\n")
-        print("Select an action")
+        print("\n1. Post a question")
+        print("2. Search posts")
+        print("3. Logout")
+        print("\nSelect an action")
 
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
