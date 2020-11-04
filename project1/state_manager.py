@@ -38,9 +38,7 @@ class StateManager:
     """
 
     states = {}
-    state_stack = []
-
-    PREV_STATE = "_PREV_STATE_"
+    current = None
 
     def add_state(self, state, name):
         self.states[name] = state
@@ -53,34 +51,21 @@ class StateManager:
         :param start_state: name of state to start at
         """
 
-        self.state_stack.insert(0, start_state)
-        self.states[self.state_stack[0]]._enter()
+        self.current = self.states[start_state]
+        self.current._enter()
 
     def change_state(self, next_state_name):
         """
+        leaves the current state and
         enters the state object with the given state name
-        in the special case that the name is PREV_STATE, it will pop the current state and conitue the previous state
-        otherwise if the next state stacks it will append it to the stack
-        if it is neither PREV_STATE or a stacking state, it will replace the current state
 
         :param next_state_name: name of state to enter
         """
 
-        # special case: previous state
-        if next_state_name == self.PREV_STATE:
-            self.states[self.state_stack[0]]._leave()
-            del self.state_stack[0]
-        else:
-            if not next_state_name in self.states:
-                print("no such state name: %s" % next_state_name)
-                return
-            nextState = self.states[next_state_name]
-            # case: non stacking state
-            if not nextState.stacks and next_state_name in self.state_stack:
-                while self.state_stack[0] != next_state_name:
-                    self.states[self.state_stack[0]]._leave()
-                    del self.state_stack[0]
-            # case: stacking state
-            else:
-                self.state_stack.insert(0, next_state_name)
-                nextState._enter()
+        if not next_state_name in self.states:
+            print("no such state name: %s" % next_state_name)
+            return
+        # case: non stacking state
+        self.current._leave()
+        self.current = self.states[next_state_name]
+        self.current._enter()

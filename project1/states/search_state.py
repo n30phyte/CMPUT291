@@ -21,7 +21,6 @@ def get_pages(posts):
 class SearchState(State):
     def enter(self):
         self.page = 0
-        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Search for a post")))
         keywords = input("Type in keywords to search for: ")
         self.results = list(get_pages(shared.db.search_post(keywords)))

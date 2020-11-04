@@ -20,16 +20,18 @@ def prompt_new_user():
 
 class LoginState(State):
     def enter(self):
+        print(term.home + term.clear + term.move_y(0))
         print(term.black_on_darkkhaki(term.center("Welcome!")))
         print("\n1. Login")
         print("2. Register")
-        print("3. Exit")
+        print("3. Exit\n")
 
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
             action = term.inkey()
 
         if action == "1":
+            self.enter()
             print("Login:")
             tries = 0
             while tries < 3:
@@ -38,8 +40,10 @@ class LoginState(State):
                 if success:
                     break
                 else:
-                    print(shared.user)
-                tries += 1
+                    print(shared.user+"\n")
+            if (tries == 3 ):
+                self.enter()
+                return
         elif action == "2":
             print("Create a new account:")
             uid, pw, name, city = prompt_new_user()
@@ -51,7 +55,6 @@ class LoginState(State):
         elif action == "3":
             exit(0)
         else:
-            util.clear()
             self.enter()
             print(action + " is not a valid opion, please try again...")
             return

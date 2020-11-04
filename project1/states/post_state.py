@@ -19,7 +19,8 @@ def reprint_post():
     print("1. Answer")
     print("2. Vote")
     if shared.user.privileged:
-        print("3. Mark as accepted")
+        if shared.post.is_answer:
+            print("3. Mark as accepted")
         print("4. Give a badge")
         print("5. Add a tag")
         print("6. Edit")
@@ -47,7 +48,8 @@ class PostState(State):
                 print("You already voted this post")
         elif action == "3" and shared.user.privileged:
             # mark as accepted: AZEEZ
-            pass
+            shared.db.accept_answer(shared.post)
+            print("Answer Accepted!")
         elif action == "4" and shared.user.privileged:
             # give a badge
             badge = input("What badge?: ")
