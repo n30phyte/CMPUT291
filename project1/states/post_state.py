@@ -4,30 +4,34 @@ from shared import term
 import shared
 
 
+def reprint_post():
+    print(term.home + term.clear + term.move_y(term.height // 2))
+    print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
+    # todo: if question, show all answers below
+    # todo: if answer, show question
+    print("Title: {}".format(shared.post.title))
+    print("Body: {}".format(shared.post.body))
+    print("Score: {}".format(shared.post.score))
+    print("Author: {}".format(shared.post.poster.name))
+    print("Tags: {}".format(", ".join(shared.post.tags)))
+
+    print(term.move_down(2))
+    # print actions
+    print("1. Answer")
+    print("2. Vote")
+    if shared.user.is_privileged():
+        print("3. Mark as accepted")
+        print("4. Give a badge")
+        print("5. Add a tag")
+        print("6. Edit")
+    print("7. Back to menu")
+
+    print("Select an action: ")
+
+
 class PostState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
-        print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
-        # todo: if question, show all answers below
-        # todo: if answer, show question
-        print("Title: {}".format(shared.post.title))
-        print("Body: {}".format(shared.post.body))
-        print("Score: {}".format(shared.post.score))
-        print("Author: {}".format(shared.post.poster.name))
-        print("Tags: {}".format(shared.post.tags))
-
-        print(term.move_down(2))
-        # print actions
-        print("1. Answer")
-        print("2. Vote")
-        if shared.user.is_privileged():
-            print("3. Mark as accepted")
-            print("4. Give a badge")
-            print("5. Add a tag")
-            print("6. Edit")
-        print("7. Back to menu")
-
-        print("Select an action: ")
+        reprint_post()
 
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
@@ -40,6 +44,7 @@ class PostState(State):
             voted = shared.db.vote_post(shared.post, shared.user)
             if voted:
                 print("Post has been voted")
+                print(term.move_y(term.height // 2 + 4) + "Score: {}".format(shared.post.score))
             else:
                 print("You already voted this post")
         elif action == "3" and shared.user.is_privileged():
@@ -54,7 +59,7 @@ class PostState(State):
             # add a tag
             tags = input("Tags to add: ").split()
             shared.db.tag_post(shared.post, tags)
-            print("Tags added")
+            reprint_post()
         elif action == "6" and shared.user.is_privileged():
             # edit
             self.manager.change_state("edit")
