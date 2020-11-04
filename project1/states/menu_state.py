@@ -4,6 +4,7 @@ import shared
 
 
 class MenuState(State):
+    # print header and actions
     def enter(self):
         print(term.home + term.clear + term.move_y(0))
         print(term.black_on_darkkhaki(term.center("Menu")))
@@ -13,6 +14,7 @@ class MenuState(State):
         print("\nSelect an action")
 
     def loop(self):
+        # receive user action selection and proceed to corresponding states
         with term.cbreak(), term.hidden_cursor():
             action = term.inkey()
         if action == "1":

@@ -6,6 +6,7 @@ import shared
 import sys
 
 if __name__ == "__main__":
+    # allow database input
     if len(sys.argv) == 1:
         db_file = "db/database.db"
     else:
@@ -13,6 +14,7 @@ if __name__ == "__main__":
 
     shared.db = Database(db_file)
 
+    # initialize state manager and insert all used states
     sm = StateManager()
     sm.add_state(LoginState(), "login")
     sm.add_state(PostState(), "post")
@@ -23,7 +25,3 @@ if __name__ == "__main__":
     sm.add_state(EditState(), "edit")
 
     sm.start("login")
-
-    # term = Terminal()
-    # user = login(db)
-    # homepage(db, user)

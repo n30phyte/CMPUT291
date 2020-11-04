@@ -25,6 +25,7 @@ class State:
     def loop(self):
         pass
 
+    # wrapper method for leave, runs before the leave() function
     def _leave(self):
         self.running = False
         self.leave()
