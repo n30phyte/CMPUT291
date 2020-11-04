@@ -1,8 +1,9 @@
-group members:
-    cynthia li (sqli)
-    azeez abass (aabass)
-    michael kwok (mkwok1)
+Group Members:
+    Cynthia Li (sqli)
+    Azeez Abass (aabass)
+    Michael Kwok (mkwok1)
 
-we did not collaborate with anyone else
+We did not collaborate with anyone else
 
-sources:
+external sources:
+https://stackoverflow.com/questions/13613037/ for Python SQL Injection

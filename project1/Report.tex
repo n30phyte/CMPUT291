@@ -1,7 +1,7 @@
 \RequirePackage[l2tabu, orthodox]{nag}
 \documentclass{article}
 
-\usepackage[margin=1.9cm, letterpaper]{geometry}
+\usepackage[letterpaper]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
 
@@ -12,7 +12,6 @@
 \and Michael Kwok (mkwok1)}
 
 \begin{document}
-
 \maketitle
 
 \section{Project Overview}
@@ -23,7 +22,7 @@
 
 The project roughly follows the Model-View-Controller pattern, with the \verb|Database| class doing the majority of the data structure and SQL access work. % TODO: More on the UI and SM??
 
-The \verb|Database| class handles the connection to the database file and determining wether the initial setup script \verb|setup.sql| needs to be run. It gathers the maximum values of pid and vno to keep it monotonically increasing for each new post. Most methods in the database work by producing the expected result as a returned value, such as \verb|login()| returning a \verb|User| object that should be reused. It was written with a functional style in mind, avoiding the mutation of state whenever possible unless it would make sense otherwise. The \verb|User| and \verb|Post| classes are the main return types used by \verb|Database|.
+The \verb|Database| class handles the connection to the database file and determining whether the initial setup script \verb|setup.sql| needs to be run. It gathers the maximum values of \verb|pid| and \verb|vno| every time the program starts to keep it monotonically increasing for each new post and vote. Most methods in the database work by producing the expected result as a returned value, such as \verb|login()| returning a \verb|User| object that should be reused. It was written with a functional style in mind, avoiding the mutation of state whenever possible unless it would make sense otherwise. The \verb|User| and \verb|Post| classes are the main return types used by \verb|Database|.
 
 \verb|User| and \verb|Post| contain what would be the records in the database, with relevant information included such as vote count and search ranking for Posts.
 
@@ -35,9 +34,9 @@ Different states were used for each different interface %TODO
 % describe responsibility + interface of each primary function/class + strucutre + relationships among them
 
 \section{Testing Strategy}
-Since each component of the system was developed seperately and at different times with the \verb|Database| module coming first, it has a suite of unit tests which currently has about 70\% coverage of the file.
+Since each component of the system was developed separately and at different times with the \verb|Database| module coming first, it has a suite of unit tests which currently has about 70\% coverage of the file.
 
-The \verb|Database| module was mostly developed with Test Driven Development as the main process, which allowed progess to be tracked, and code to be tested as it was written. The output of functions were compared with similar but not identical SQL commands directly to the database to verify that each function ran as expected. Both failure and success situations were tested in test suite, making sure that the specification was provided was followed.
+The \verb|Database| module was mostly developed with Test Driven Development as the main process, which allowed progress to be tracked, and code to be tested as it was written. The output of functions were compared with similar but not identical SQL commands directly to the database to verify that each function ran as expected. Both failure and success situations were tested in test suite, making sure that the specification was provided was followed.
 
 Integration testing was done manually, by testing each state and part of the interface by hand as setting up automated testing for this part would have been overkill.
 
@@ -46,11 +45,13 @@ Most bugs found were logic errors from processing the results from SQL, but a fe
 
 \section{Groupwork Breakdown}
 
+The group convened through the help of a Discord group chat, and code was hosted in a private GitHub repository.
+
 \begin{itemize}
     \item Azeez
           \begin{itemize}
               \item Built State Machine
-              \item Worked States including: Login, Accpeted as Answer
+              \item Worked States including: Login, Accepted as Answer
               \item Wrote some test data
           \end{itemize}
     \item Cynthia
@@ -68,12 +69,9 @@ Most bugs found were logic errors from processing the results from SQL, but a fe
               \item Made the \verb|user.py| and \verb|post.py| `models'
           \end{itemize}
 \end{itemize}
+
 % list breakdown of work items among partners; time spent (estimate) + progress made by each partner
-
-% method of coordination: discord group chat
-
-
-
+A ``Return to Main Menu'' option was added to get out of viewing a post, which was not mentioned in the specification
 % document decisions made which isn't in project specs / coding done beyond/diff from requried
 % added "back to menu" option in viewing post
 
