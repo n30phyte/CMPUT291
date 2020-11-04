@@ -144,7 +144,7 @@ class Database:
         exist. Otherwise, result is (false, None).
         """
         if len(uid) > 4 or len(uid) <= 0:
-            return False, "Username should be between 0 and 5 characters, exclusive"
+            return False, "Username should be between 1 and 4 characters"
 
         self.cursor.execute("SELECT uid FROM users WHERE users.uid LIKE ?;", (uid,))
         result = self.cursor.fetchall()
