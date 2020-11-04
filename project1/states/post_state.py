@@ -44,7 +44,7 @@ class PostState(State):
             voted = shared.db.vote_post(shared.post, shared.user)
             if voted:
                 print("Post has been voted")
-                print(term.move_y(term.height // 2 + 4) + "Score: {}".format(shared.post.score))
+                print(term.move_y(term.height // 2 + 5) + "Score: {}".format(shared.post.score))
             else:
                 print("You already voted this post")
         elif action == "3" and shared.user.is_privileged():
