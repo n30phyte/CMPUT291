@@ -389,9 +389,10 @@ class Database:
         return output
 
     def get_post(self, post_id: str) -> Post:
-        query = "SELECT * FROM posts WHERE posts.pid = ?;"
+        info_query = "SELECT * FROM posts WHERE posts.pid = ?;"
+        answer_query = "SELECT * FROM answers WHERE answers.pid = ?;"
 
-        self.cursor.execute(query, (post_id,))
+        self.cursor.execute(info_query, (post_id,))
         result = self.cursor.fetchone()
 
         poster = self.get_user(result[4])
@@ -399,6 +400,12 @@ class Database:
         post = Post(
             result[0], result[1], result[2], result[3], poster
         )
+
+        self.cursor.execute(answer_query, (post_id,))
+        result = self.cursor.fetchall()
+
+        if len(result) == 1:
+            post.is_answer = True
 
         self.set_score(post)
 
