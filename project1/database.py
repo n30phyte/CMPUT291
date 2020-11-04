@@ -431,7 +431,6 @@ class Database:
 
         return len(result) > 0
 
-
     def get_post(self, post_id: str) -> Post:
         query = "SELECT * FROM posts WHERE posts.pid = ?;"
 
@@ -443,7 +442,6 @@ class Database:
         post = Post(
             result[0], result[1], result[2], result[3], poster
         )
-
 
         self.set_score(post)
 

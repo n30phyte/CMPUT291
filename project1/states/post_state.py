@@ -8,11 +8,12 @@ def print_answers(post):
     answers = shared.db.get_answers(post)
     if len(answers) > 0: print("Answers:")
     for answer in answers:
-        print("    Title: {}; Body: {}".format(answer.title, answer.body))
+        print(shared.term.move_down() + "    Title: {}; Body: {}".format(answer.title, answer.body))
         print("    Author: {}; Score: {}".format(answer.poster.name, answer.score))
 
 
 def print_question(post):
+    # TODO: NOT WORKING!!!!
     question = shared.db.get_post(post.question_id)
     print("Question:")
     print("    Title: {}; Body: {}".format(question.title, question.body))
@@ -20,9 +21,8 @@ def print_question(post):
 
 
 def reprint_post():
+    print(term.home + term.clear)
     print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
-    # todo: if question, show all answers below
-    # todo: if answer, show question
     print("Title: {}".format(shared.post.title))
     print("Body: {}".format(shared.post.body))
     print("Score: {}".format(shared.post.score))
@@ -30,7 +30,8 @@ def reprint_post():
     print("Tags: {}".format(", ".join(shared.post.tags)))
 
     if shared.post.is_answer:
-        print_question(shared.post)
+        # print_question(shared.post)
+        pass
     else:
         print_answers(shared.post)
 
@@ -56,7 +57,7 @@ class PostState(State):
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
             action = term.inkey()
-        if action == "1" and !shared.post.is_answer:
+        if action == "1" and not shared.post.is_answer:
             # answer
             self.manager.change_state("answer")
         elif action == "2":
@@ -64,7 +65,7 @@ class PostState(State):
             voted = shared.db.vote_post(shared.post, shared.user)
             if voted:
                 print("Post has been voted")
-                print(term.move_y(term.height // 2 + 5) + "Score: {}".format(shared.post.score))
+                print(term.move_y(5) + "Score: {}".format(shared.post.score))
             else:
                 print("You already voted this post")
         elif action == "3" and shared.user.privileged and shared.post.is_answer:
