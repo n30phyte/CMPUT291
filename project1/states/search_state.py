@@ -9,15 +9,16 @@ def getpage(page, posts):
 
 class SearchState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Search for a post")))
-        keywords = input(term.move_down() + "Type in keywords to search for")
 
     def loop(self):
+        keywords = input(term.move_down() + "Type in keywords to search for: ")
         results = shared.db.search_post(keywords)
         # todo: display search results: columns of posts table + num votes + num answers if question
-        for i in range(5):
-            print("{}. {}".format(i + 1, results[i]))
+        i = 0
+        for result in results:
+            print("{}. {}".format(i, results[i]))
+            i += 1
         print("6. Show more")
         print("7. Back to menu")
         print("Select a post or action")

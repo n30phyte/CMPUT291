@@ -20,9 +20,8 @@ def prompt_new_user():
 
 class LoginState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Welcome!")))
-        print("1. Login")
+        print("\n1. Login")
         print("2. Register")
         print("3. Exit")
 

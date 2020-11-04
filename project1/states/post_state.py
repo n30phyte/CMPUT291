@@ -6,7 +6,6 @@ import shared
 
 class PostState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Post")) + term.move_down())
         # todo: if question, show all answers below
         # todo: if answer, show question
@@ -43,8 +42,9 @@ class PostState(State):
             else:
                 print("You already voted this post")
         elif action == "3" and shared.user.is_privileged():
-            # mark as accepted: AZEEZ
-            pass
+            # mark as accepted
+            shared.db.accept_answer(shared.post)
+            print("Marked as answer")
         elif action == "4" and shared.user.is_privileged():
             # give a badge
             badge = input("What badge?: ")

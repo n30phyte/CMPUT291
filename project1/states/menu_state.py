@@ -2,13 +2,12 @@ from state_manager import State
 from shared import term
 import shared
 
-
 class MenuState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
-        print(term.black_on_darkkhaki(term.center("Login successful!")))
+        print(term.home + term.clear + term.move_y(0))
+        print(term.black_on_darkkhaki(term.center("Menu")))
         print(term.move_down() + "1. Post a question" + "\n" + "2. Search posts")
-        print("3. Logout")
+        print("3. Logout\n")
         print("Select an action")
 
     def loop(self):

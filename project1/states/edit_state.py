@@ -5,7 +5,6 @@ import shared
 
 class EditState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("Edit post")))
 
     def loop(self):

@@ -1,5 +1,5 @@
 from util import clear
-
+from shared import term
 
 class State:
     """
@@ -13,6 +13,7 @@ class State:
     def _enter(self):
         self.running = True
         clear()
+        print(term.home + term.clear + term.move_y(0))
         self.enter()
         while self.running:
             self.loop()
