@@ -200,7 +200,7 @@ class Database:
             today = date.today().strftime("%Y-%m-%d")
             statement = "INSERT INTO votes (pid, vno, vdate, uid) VALUES (?, ?, ?, ?);"
             self.cursor.execute(
-                statement, (post.post_id, self.vno_max, "x", today, voter.uid)
+                statement, (post.post_id, self.vno_max, today, voter.uid)
             )
             self.vno_max += 1
             self.connection.commit()
