@@ -36,10 +36,12 @@ def reprint_post():
 
     print(term.move_down(2))
     # print actions
-    print("1. Answer")
+    if not shared.post.is_answer:
+        print("1. Answer")
     print("2. Vote")
     if shared.user.privileged:
-        print("3. Mark as accepted")
+        if shared.post.is_answer:
+            print("3. Mark as accepted")
         print("4. Give a badge")
         print("5. Add a tag")
         print("6. Edit")
@@ -54,7 +56,7 @@ class PostState(State):
     def loop(self):
         with term.cbreak(), term.hidden_cursor():
             action = term.inkey()
-        if action == "1":
+        if action == "1" and !shared.post.is_answer:
             # answer
             self.manager.change_state("answer")
         elif action == "2":
@@ -65,9 +67,10 @@ class PostState(State):
                 print(term.move_y(term.height // 2 + 5) + "Score: {}".format(shared.post.score))
             else:
                 print("You already voted this post")
-        elif action == "3" and shared.user.privileged:
-            # mark as accepted: AZEEZ
-            pass
+        elif action == "3" and shared.user.privileged and shared.post.is_answer:
+            # mark as accepted
+            shared.db.accept_answer(shared.post)
+            print("Answer Accepted!")
         elif action == "4" and shared.user.privileged:
             # give a badge
             badge = input("What badge?: ")

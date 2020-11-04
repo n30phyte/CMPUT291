@@ -388,6 +388,15 @@ class Database:
 
         return output
 
+    def is_post_answer(self, post_id) -> bool:
+        query = "SELECT * FROM answers WHERE answers.pid = ?;"
+
+        self.cursor.execute(query, (post_id,))
+        result = self.cursor.fetchall()
+
+        return len(result) > 0
+
+
     def get_post(self, post_id: str) -> Post:
         query = "SELECT * FROM posts WHERE posts.pid = ?;"
 
@@ -400,8 +409,10 @@ class Database:
             result[0], result[1], result[2], result[3], poster
         )
 
+
         self.set_score(post)
 
         post.tags = self.get_tags(post)
+        post.is_answer = self.is_post_answer(post_id)
 
         return post
