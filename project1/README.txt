@@ -6,8 +6,8 @@ Group Members:
 We did not collaborate with anyone else
 
 Running Instructions:
-    pip install blessed
-    python main.py
+    pip3 install blessed
+    python3 main.py
 
 external sources:
 https://stackoverflow.com/questions/13613037/ for Python SQL Injection
