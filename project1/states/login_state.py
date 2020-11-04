@@ -47,9 +47,9 @@ class LoginState(State):
         elif action == "2":
             print("Create a new account:")
             uid, pw, name, city = prompt_new_user()
-            success, user = shared.db.register(uid, pw, name, city)
+            success, shared.user = shared.db.register(uid, pw, name, city)
             while not success:
-                print(user)
+                print(shared.user)
                 uid, pw, name, city = prompt_new_user()
                 success, shared.user = shared.db.register(uid, pw, name, city)
         elif action == "3":

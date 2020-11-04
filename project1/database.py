@@ -42,9 +42,9 @@ def count_keywords(post: Post, keywords: str):
 
     for keyword in keywords.split():
         if (
-            (keyword.lower in post.title.lower().split())
-            or (keyword in post.body.lower().split())
-            or (keyword in [tag.lower() for tag in post.tags])
+                (keyword.lower in post.title.lower().split())
+                or (keyword in post.body.lower().split())
+                or (keyword in [tag.lower() for tag in post.tags])
         ):
             search_rank += 1
 
@@ -131,7 +131,7 @@ class Database:
             return False, "Incorrect Password or user does not exist"
 
     def register(
-        self, uid: str, password: str, name: str = "", city: str = ""
+            self, uid: str, password: str, name: str = "", city: str = ""
     ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
@@ -144,7 +144,7 @@ class Database:
         exist. Otherwise, result is (false, None).
         """
         if len(uid) > 4 or len(uid) <= 0:
-            return False, "Username should be between 0 and 5 characters, exclusive"
+            return False, "Username should be between 1 and 4 characters"
 
         self.cursor.execute("SELECT uid FROM users WHERE users.uid LIKE ?;", (uid,))
         result = self.cursor.fetchall()
@@ -267,23 +267,17 @@ class Database:
             results.extend(search_result)
 
         output = []
-        output_posts = set()
+        output_ids = set()
 
         for result in results:
-            if result[0] not in output_posts:
-                poster = self.get_user(result[4])
+            if result[0] not in output_ids:
+                output_ids.add(result[0])
 
-                current_result = Post(
-                    result[0], result[1], result[2], result[3], poster
-                )
-
-                self.set_score(current_result)
-                current_result.tags = self.get_tags(current_result)
+                current_result = self.get_post(result[0])
 
                 count_keywords(current_result, keywords)
 
                 output.append(current_result)
-                output_posts.add(result[0])
 
         return output
 
@@ -357,3 +351,57 @@ class Database:
         score = self.cursor.fetchone()
 
         post.score = score[0]
+
+    def get_answers(self, post: Post) -> List[Post]:
+        """
+        Gets the answers to specified post, assumed to be question but not checked
+
+        :param post: Post to be queried
+        :return: List of posts, first post will be the accepted answer
+        """
+
+        all_answers_query = "SELECT answers.pid FROM answers WHERE answers.qid = ?;"
+        accepted_answer_query = "SELECT theaid FROM questions WHERE pid = ? AND theaid NOT NULL;"
+
+        output = []
+        output_ids = set()
+
+        self.cursor.execute(accepted_answer_query, (post.get_post_id(),))
+        accepted_res = self.cursor.fetchall()
+        if len(accepted_res) == 1:
+            accepted_res = accepted_res[0]
+            output_ids.add(accepted_res[0])
+
+            accepted_answer = self.get_post(accepted_res[0])
+            accepted_answer.set_as_accepted()
+            output.append(accepted_answer)
+
+        self.cursor.execute(all_answers_query, (post.get_post_id(),))
+        all_res = self.cursor.fetchall()
+
+        for result in all_res:
+            if result[0] not in output_ids:
+                output_ids.add(result[0])
+
+                current_result = self.get_post(result[0])
+                output.append(current_result)
+
+        return output
+
+    def get_post(self, post_id: str) -> Post:
+        query = "SELECT * FROM posts WHERE posts.pid = ?;"
+
+        self.cursor.execute(query, (post_id,))
+        result = self.cursor.fetchone()
+
+        poster = self.get_user(result[4])
+
+        post = Post(
+            result[0], result[1], result[2], result[3], poster
+        )
+
+        self.set_score(post)
+
+        post.tags = self.get_tags(post)
+
+        return post
