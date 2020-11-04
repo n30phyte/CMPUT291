@@ -373,6 +373,7 @@ class Database:
             output_ids.add(accepted_res[0])
 
             accepted_answer = self.get_post(accepted_res[0])
+            accepted_answer.set_as_accepted()
             output.append(accepted_answer)
 
         self.cursor.execute(all_answers_query, (post.get_post_id(),))
