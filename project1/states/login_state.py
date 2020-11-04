@@ -51,6 +51,7 @@ class LoginState(State):
         elif action == "3":
             exit(0)
         else:
+            util.clear()
             self.enter()
             print(action + " is not a valid opion, please try again...")
             return

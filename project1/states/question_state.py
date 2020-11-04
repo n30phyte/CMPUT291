@@ -5,7 +5,6 @@ import shared
 
 class QuestionState(State):
     def enter(self):
-        print(term.home + term.clear + term.move_y(term.height // 2))
         print(term.black_on_darkkhaki(term.center("New question")))
 
     def loop(self):
