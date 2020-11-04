@@ -9,6 +9,7 @@ from user import User
 
 DATE_FORMAT = "%Y-%m-%d"
 
+
 def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str]:
     """
     Ensure a list of tags doesn't have duplicates, and optionally compare to another list, while keeping case
@@ -44,9 +45,9 @@ def count_keywords(post: Post, keywords: str):
 
     for keyword in keywords.split():
         if (
-                (keyword.lower() in post.title.lower())
-                or (keyword in post.body.lower())
-                or (keyword in [tag.lower() for tag in post.tags])
+            (keyword.lower() in post.title.lower())
+            or (keyword in post.body.lower())
+            or (keyword in [tag.lower() for tag in post.tags])
         ):
             search_rank += 1
 
@@ -141,7 +142,7 @@ class Database:
             return False, "Incorrect Password or user does not exist"
 
     def register(
-            self, uid: str, password: str, name: str = "", city: str = ""
+        self, uid: str, password: str, name: str = "", city: str = ""
     ) -> Tuple[bool, User]:
         """
         Attempts to register a user. Automatically returns a user as logged in afterwards.
@@ -400,7 +401,9 @@ class Database:
         """
 
         all_answers_query = "SELECT answers.pid FROM answers WHERE answers.qid = ?;"
-        accepted_answer_query = "SELECT theaid FROM questions WHERE pid = ? AND theaid NOT NULL;"
+        accepted_answer_query = (
+            "SELECT theaid FROM questions WHERE pid = ? AND theaid NOT NULL;"
+        )
 
         output = []
         output_ids = set()
@@ -443,9 +446,7 @@ class Database:
 
         poster = self.get_user(result[4])
 
-        post = Post(
-            result[0], result[1], result[2], result[3], poster
-        )
+        post = Post(result[0], result[1], result[2], result[3], poster)
 
         self.set_score(post)
 

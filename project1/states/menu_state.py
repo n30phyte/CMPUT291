@@ -2,6 +2,7 @@ from state_manager import State
 from shared import term
 import shared
 
+
 class MenuState(State):
     def enter(self):
         print(term.home + term.clear + term.move_y(0))

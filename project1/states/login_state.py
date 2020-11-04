@@ -40,8 +40,8 @@ class LoginState(State):
                 if success:
                     break
                 else:
-                    print(shared.user+"\n")
-            if (tries == 3 ):
+                    print(shared.user + "\n")
+            if tries == 3:
                 self.enter()
                 return
         elif action == "2":

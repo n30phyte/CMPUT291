@@ -6,9 +6,13 @@ import shared
 
 def print_answers(post):
     answers = shared.db.get_answers(post)
-    if len(answers) > 0: print("Answers:")
+    if len(answers) > 0:
+        print("Answers:")
     for answer in answers:
-        print(shared.term.move_down() + "    Title: {}; Body: {}".format(answer.title, answer.body))
+        print(
+            shared.term.move_down()
+            + "    Title: {}; Body: {}".format(answer.title, answer.body)
+        )
         print("    Author: {}; Score: {}".format(answer.poster.name, answer.score))
 
 

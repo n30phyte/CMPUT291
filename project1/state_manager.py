@@ -1,6 +1,7 @@
 from util import clear
 from shared import term
 
+
 class State:
     """
     A generic State Class
