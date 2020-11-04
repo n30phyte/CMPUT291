@@ -290,6 +290,8 @@ class Database:
 
                 output.append(current_result)
 
+        output.sort(key=lambda post: post.search_rank)
+
         return output
 
     def accept_answer(self, answer_post: Post):
@@ -447,5 +449,13 @@ class Database:
 
         post.tags = self.get_tags(post)
         post.is_answer = self.is_post_answer(post_id)
+
+        if post.is_answer:
+            # Get the question it's answering
+            query = "SELECT qid FROM answers WHERE answers.pid = ?;"
+            self.cursor.execute(query, (post_id,))
+            result = self.cursor.fetchone()
+
+            post.question_id = result[0]
 
         return post

@@ -30,8 +30,7 @@ def reprint_post():
     print("Tags: {}".format(", ".join(shared.post.tags)))
 
     if shared.post.is_answer:
-        # print_question(shared.post)
-        pass
+        print_question(shared.post)
     else:
         print_answers(shared.post)
 
