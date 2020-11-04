@@ -1,7 +1,7 @@
 \RequirePackage[l2tabu, orthodox]{nag}
 \documentclass{article}
 
-\usepackage[letterpaper]{geometry}
+\usepackage[margin=1.9cm, letterpaper]{geometry}
 \usepackage[utf8]{inputenc}
 \usepackage{indentfirst}
 
@@ -18,15 +18,15 @@
 % Add high level intro
 % may include diagram showing flow of data between different components
 
-This program utilizes a local sqlite database to provide the user a question-answer forum to interact with. Interactions are done via selecting provided options in each state.
+This program utilizes a local SQLite database to provide the user a question-answer forum to interact with. Interactions are done via selecting provided options in each state.
 
-Upon startup, the user may choose to login, sign up, or exit the program. After logging in or signing up, the user will be brought to the main menu where they can create a new question post, search posts, or log out of their account (which brings them back to the first screen). Creating a new question involves setting a title and body, after which the user is taken to the post view of their question where they can make post actions. 
+Upon startup, the user may choose to login, sign up, or exit the program. After logging in or signing up, the user will be brought to the main menu where they can create a new question post, search posts, or log out of their account (which brings them back to the first screen). Creating a new question involves setting a title and body, after which the user is taken to the post view of their question where they can make post actions.
 
 These post actions vary depending on if the user is privileged, but all users have the option to answer the question if it is a question, and to vote the question if they have not voted it already. Privileged users have further actions of marking an answer as accepted if the post is an answer, give a badge to the user if they have not given the badge they chose to give already today, add a tag to the post, and edit the title and/or body of the post.
 
 If the user makes a mistake in action choice or data entry, the program reminds the user that they made an error and allow a retry. When a user makes a failed attempt at login more than 3 times, the counter is reset and the user is brought back to the initial screen to login, create a new account, or log out. A new user, however, has any amount of tries to register a new account if their chosen uid is already taken.
 
-The score is the number of votes a post as received. When entering a password during login or registration, a user wil be unable to see their input but it is received nonetheless.
+The score is the number of votes a post as received. When entering a password during login or registration, a user will not be able to see their input but it is received nonetheless.
 
 \section{Design}
 
@@ -36,12 +36,7 @@ The \verb|Database| class handles the connection to the database file and determ
 
 \verb|User| and \verb|Post| contain what would be the records in the database, with relevant information included such as vote count and search ranking for Posts.
 
-The user interface and control flow is handled by a state machine %TODO: Expand
-
-Different states were used for each different interface %TODO
-
-% focus on components requried to deliver the major functions of application
-% describe responsibility + interface of each primary function/class + strucutre + relationships among them
+The user interface and control flow is handled by a state machine. States are defined when the program starts, with and each state having it's own output for the user interface. The state machine calls into the Database class to perform actions, fitting both the View and Controller in MVC, also allowing for cleaner seperation between parts, allowing simpler bug fixes and ensuring that bugs in one part will not affect the other.
 
 \section{Testing Strategy}
 Since each component of the system was developed separately and at different times with the \verb|Database| module coming first, it has a suite of unit tests which currently has about 70\% coverage of the file.
@@ -61,7 +56,7 @@ The group convened through the help of a Discord group chat, and code was hosted
     \item Azeez
           \begin{itemize}
               \item Built state machine manager interface
-              \item Worked on states: Login (refactored), Accepet as answer
+              \item Worked on states: Login (refactored), Accept as answer
               \item Wrote some test data
           \end{itemize}
     \item Cynthia
@@ -88,3 +83,4 @@ A ``Return to Main Menu'' option was added to get out of viewing a post, which w
 % added "back to menu" option in viewing post
 
 \end{document}
+t}
