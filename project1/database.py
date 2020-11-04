@@ -42,8 +42,8 @@ def count_keywords(post: Post, keywords: str):
 
     for keyword in keywords.split():
         if (
-                (keyword.lower in post.title.lower().split())
-                or (keyword in post.body.lower().split())
+                (keyword.lower() in post.title.lower())
+                or (keyword in post.body.lower())
                 or (keyword in [tag.lower() for tag in post.tags])
         ):
             search_rank += 1
@@ -290,7 +290,7 @@ class Database:
 
                 output.append(current_result)
 
-        output.sort(key=lambda post: post.search_rank)
+        output.sort(key=lambda post: post.search_rank, reverse=True)
 
         return output
 
