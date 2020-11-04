@@ -2,6 +2,7 @@ from state_manager import State
 from shared import term
 import shared
 
+
 def getpage(page, posts):
 
     return posts[page * 5, page * 5 + 5]

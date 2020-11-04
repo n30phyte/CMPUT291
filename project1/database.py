@@ -54,6 +54,8 @@ def count_keywords(post: Post, keywords: str):
 class Database:
     """
     Main class for most operations, such as user information gathering and post creation.
+
+    Very little validation is done on this side, and the UI/State Machine should handle that.
     """
 
     # Avoid injection by doing cursor.execute("(STATEMENT) ?", args)
@@ -161,13 +163,32 @@ class Database:
         return self.login(uid, password)
 
     def new_question(self, title: str, body: str, poster: User) -> Post:
+        """
+        Post a new question as the provided user with the provided title and body
+
+        :param title: Title of the question
+        :param body: Body of the question
+        :param poster: The user that posted
+        :return: The post created
+        """
         post = self.new_post(title, body, poster)
-        self.cursor.execute("INSERT INTO questions (pid) VALUES (?);", (post.get_post_id(),))
+        self.cursor.execute(
+            "INSERT INTO questions (pid) VALUES (?);", (post.get_post_id(),)
+        )
         self.connection.commit()
 
         return post
 
     def new_answer(self, title: str, body: str, poster: User, question: Post) -> Post:
+        """
+        Reply to a question as an answer
+
+        :param title:
+        :param body:
+        :param poster:
+        :param question:
+        :return:
+        """
         post = self.new_post(title, body, poster)
         post.set_as_answer(question)
         self.cursor.execute(
@@ -186,7 +207,8 @@ class Database:
         self.pid_max += 1
 
         self.cursor.execute(
-            statement, (post.get_post_id(), today, post.title, post.body, post.poster.uid)
+            statement,
+            (post.get_post_id(), today, post.title, post.body, post.poster.uid),
         )
 
         return post
@@ -225,6 +247,7 @@ class Database:
             )
             self.vno_max += 1
             self.connection.commit()
+            self.set_score(post)
             return True
 
         return False
@@ -276,8 +299,13 @@ class Database:
 
         today = date.today().strftime("%Y-%m-%d")
 
-        self.cursor.execute(query, (awardee.uid, today, badge_name))
-        self.connection.commit()
+        try:
+            self.cursor.execute(query, (awardee.uid, today, badge_name))
+            self.connection.commit()
+        except sqlite3.IntegrityError as Err:
+            return False
+
+        return True
 
     def edit_post(self, edited_post: Post):
         statement = "UPDATE posts SET title = ?, body = ? WHERE posts.pid = ?;"
@@ -309,7 +337,9 @@ class Database:
 
     def get_tags(self, post: Post) -> List[str]:
         # Get all existing tags for the post
-        self.cursor.execute("SELECT * FROM tags WHERE tags.pid = ?;", (post.get_post_id(),))
+        self.cursor.execute(
+            "SELECT * FROM tags WHERE tags.pid = ?;", (post.get_post_id(),)
+        )
         tags = []
 
         # Add them all to the set
@@ -320,7 +350,8 @@ class Database:
 
     def set_score(self, post: Post):
         self.cursor.execute(
-            "SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;", (post.get_post_id(),)
+            "SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;",
+            (post.get_post_id(),),
         )
 
         score = self.cursor.fetchone()

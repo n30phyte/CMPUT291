@@ -19,4 +19,3 @@ class EditState(State):
         shared.post.body = body
         shared.db.edit_post(shared.post)
         self.manager.change_state("post")
-
