@@ -1,0 +1,4 @@
+This project requires the blessed python module
+It can be installed with the command:
+
+pip install blessed
