@@ -1,10 +1,17 @@
 from database import Database
 from state_manager import StateManager
 from states import *
+
 import shared
+import sys
 
 if __name__ == "__main__":
-    shared.db = Database()
+    if len(sys.argv) == 1:
+        db_file = "db/database.db"
+    else:
+        db_file = sys.argv[1]
+
+    shared.db = Database(db_file)
 
     sm = StateManager()
     sm.add_state(LoginState(), "login")

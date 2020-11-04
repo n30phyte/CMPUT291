@@ -29,7 +29,10 @@ class Post:
 
     def set_as_answer(self, question_post: "Post"):
         self.is_answer = True
-        self.question_id = question_post.post_id
+        self.question_id = question_post.get_post_id()
 
     def set_as_accepted(self):
         self.is_accepted = True
+
+    def get_post_id(self):
+        return str(self.post_id).zfill(4)

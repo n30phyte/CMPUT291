@@ -8,6 +8,13 @@ from user import User
 
 
 def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str]:
+    """
+    Ensure a list of tags doesn't have duplicates, and optionally compare to another list, while keeping case
+    :param tags: List of strings with the tags to be added
+    :param existing: List of existing tags
+    :return: List of tags that should get added
+    """
+
     output = []
 
     if existing is None:
@@ -25,6 +32,12 @@ def deduplicate_tag_list(tags: List[str], existing: Set[str] = None) -> List[str
 
 
 def count_keywords(post: Post, keywords: str):
+    """
+    For a given post, calculate keyword score
+
+    :param post: The post to rate
+    :param keywords: Space-seperated keywords
+    """
     search_rank = 0
 
     for keyword in keywords.split():
@@ -39,6 +52,10 @@ def count_keywords(post: Post, keywords: str):
 
 
 class Database:
+    """
+    Main class for most operations, such as user information gathering and post creation.
+    """
+
     # Avoid injection by doing cursor.execute("(STATEMENT) ?", args)
     # https://stackoverflow.com/questions/13613037/
     connection = None
@@ -50,7 +67,11 @@ class Database:
     pid_max = 0
     vno_max = 0
 
-    def __init__(self, db_filename: str = "db/database.db"):
+    def __init__(self, db_filename: str):
+        """
+
+        :param db_filename:
+        """
         self.filename = db_filename
         # Check if exists
         if not os.path.exists(self.filename):
@@ -141,7 +162,7 @@ class Database:
 
     def new_question(self, title: str, body: str, poster: User) -> Post:
         post = self.new_post(title, body, poster)
-        self.cursor.execute("INSERT INTO questions (pid) VALUES (?);", (post.post_id,))
+        self.cursor.execute("INSERT INTO questions (pid) VALUES (?);", (post.get_post_id(),))
         self.connection.commit()
 
         return post
@@ -151,7 +172,7 @@ class Database:
         post.set_as_answer(question)
         self.cursor.execute(
             "INSERT INTO answers (pid, qid) VALUES (?, ?);",
-            (post.post_id, post.question_id),
+            (post.get_post_id(), post.question_id),
         )
         self.connection.commit()
 
@@ -165,7 +186,7 @@ class Database:
         self.pid_max += 1
 
         self.cursor.execute(
-            statement, (post.post_id, today, post.title, post.body, post.poster.uid)
+            statement, (post.get_post_id(), today, post.title, post.body, post.poster.uid)
         )
 
         return post
@@ -182,7 +203,7 @@ class Database:
         # Go through the list and add the tags one by one, keeping casing
         for tag in new_tags:
             self.cursor.execute(
-                "INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.post_id, tag)
+                "INSERT INTO tags (pid, tag) VALUES (?, ?);", (post.get_post_id(), tag)
             )
             self.connection.commit()
 
@@ -191,7 +212,7 @@ class Database:
     def vote_post(self, post: Post, voter: User) -> bool:
         self.cursor.execute(
             "SELECT uid FROM votes WHERE pid = ? AND uid = ?;",
-            (post.post_id, voter.uid),
+            (post.get_post_id(), voter.uid),
         )
 
         result = self.cursor.fetchall()
@@ -200,7 +221,7 @@ class Database:
             today = date.today().strftime("%Y-%m-%d")
             statement = "INSERT INTO votes (pid, vno, vdate, uid) VALUES (?, ?, ?, ?);"
             self.cursor.execute(
-                statement, (post.post_id, self.vno_max, today, voter.uid)
+                statement, (post.get_post_id(), self.vno_max, today, voter.uid)
             )
             self.vno_max += 1
             self.connection.commit()
@@ -246,7 +267,7 @@ class Database:
     def accept_answer(self, answer_post: Post):
         query = "UPDATE questions SET theaid = ? WHERE pid = ?;"
 
-        self.cursor.execute(query, (answer_post.post_id, answer_post.question_id))
+        self.cursor.execute(query, (answer_post.get_post_id(), answer_post.question_id))
         self.connection.commit()
         answer_post.set_as_accepted()
 
@@ -262,7 +283,7 @@ class Database:
         statement = "UPDATE posts SET title = ?, body = ? WHERE posts.pid = ?;"
 
         self.cursor.execute(
-            statement, (edited_post.title, edited_post.body, edited_post.post_id)
+            statement, (edited_post.title, edited_post.body, edited_post.get_post_id())
         )
         self.connection.commit()
 
@@ -288,7 +309,7 @@ class Database:
 
     def get_tags(self, post: Post) -> List[str]:
         # Get all existing tags for the post
-        self.cursor.execute("SELECT * FROM tags WHERE tags.pid = ?;", (post.post_id,))
+        self.cursor.execute("SELECT * FROM tags WHERE tags.pid = ?;", (post.get_post_id(),))
         tags = []
 
         # Add them all to the set
@@ -299,9 +320,9 @@ class Database:
 
     def set_score(self, post: Post):
         self.cursor.execute(
-            "SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;", (post.post_id,)
+            "SELECT COUNT(votes.vno) FROM votes WHERE votes.pid = ?;", (post.get_post_id(),)
         )
 
         score = self.cursor.fetchone()
 
-        post.score = score
+        post.score = score[0]
