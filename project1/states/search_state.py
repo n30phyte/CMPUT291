@@ -6,6 +6,8 @@ import shared
 def print_post(post):
     print("    Body: {}".format(post.body))
     print("    Score: {}; Author: {}; Tags: {}".format(post.score, post.poster.name, ", ".join(post.tags)))
+    if not post.is_answer:
+        print("    Answers: {}".format(len(shared.db.get_answers(post))))
 
 
 def get_pages(posts):
