@@ -13,7 +13,6 @@ def print_answers(post):
 
 
 def print_question(post):
-    # TODO: NOT WORKING!!!!
     question = shared.db.get_post(post.question_id)
     print("Question:")
     print("    Title: {}; Body: {}".format(question.title, question.body))
@@ -30,8 +29,7 @@ def reprint_post():
     print("Tags: {}".format(", ".join(shared.post.tags)))
 
     if shared.post.is_answer:
-        # print_question(shared.post)
-        pass
+        print_question(shared.post)
     else:
         print_answers(shared.post)
 
@@ -65,7 +63,8 @@ class PostState(State):
             voted = shared.db.vote_post(shared.post, shared.user)
             if voted:
                 print("Post has been voted")
-                print(term.move_y(5) + "Score: {}".format(shared.post.score))
+                with term.location(y=5, x=0):
+                    print("Score: {}".format(shared.post.score) + term.clear_eol)
             else:
                 print("You already voted this post")
         elif action == "3" and shared.user.privileged and shared.post.is_answer:
