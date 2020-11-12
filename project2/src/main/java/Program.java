@@ -1,23 +1,18 @@
 import com.mongodb.*;
 import com.mongodb.util.JSON;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.List;
-import org.json.*;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import org.json.simple.parser.JSONParser;
+import com.google.common.io.Files;
 
 public class Program {
 
     /**
-     *
      * @param args
      */
     public static void main(String[] args) {
         int portNumber = 0;
-        if(args.length > 2) {
+        if (args.length > 2) {
             portNumber = Integer.parseInt(args[1]);
         }
 
@@ -32,17 +27,17 @@ public class Program {
             JSONParser parser = new JSONParser();
             // create three collections named: Posts, Tags, Votes
             // if collections exist, drop and create new collections
+
             DBCollection posts = db.getCollection("Posts");
-            try (Reader postsReader = new FileReader("./Posts.json")) {
-                DBObject postsObj = (DBObject) JSON.parse(postsReader);
-                posts.insert(postsObj);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            File postsFile = new File("./Posts.json");
+            String postsString = Files.asCharSource(postsFile, StandardCharsets.UTF_8).toString();
+            DBObject postsObj = (DBObject) JSON.parse(postsString);
+            posts.insert(postsObj);
 
             DBCollection tags = db.getCollection("Tags");
             try (Reader tagsReader = new FileReader("./Tags.json")) {
-                DBObject tagsObj = (DBObject) JSON.parse(tagsReader);
+
+                DBObject tagsObj = (DBObject) JSON.parse("");
                 tags.insert(tagsObj);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -50,7 +45,7 @@ public class Program {
 
             DBCollection votes = db.getCollection("Votes");
             try (Reader votesReader = new FileReader("./Votes.json")) {
-                DBObject votesObj = (DBObject) JSON.parse(votesReader);
+                DBObject votesObj = (DBObject) JSON.parse("");
                 votes.insert(votesObj);
             } catch (IOException e) {
                 e.printStackTrace();
