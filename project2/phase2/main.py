@@ -1,5 +1,7 @@
 import blessed
 
+from database import Database
+
 user_id = None
 content_license = "CC BY-SA 2.5"
 post_id = None
@@ -117,6 +119,8 @@ def vote():
 
 if __name__ == '__main__':
     # set up db stuff
-
+    db = Database(27017)
+    db.new_question(-1, "uwu", "uwu cummies", [])
+    db.search_question(["macos"])
     # start
     prompt_login()
