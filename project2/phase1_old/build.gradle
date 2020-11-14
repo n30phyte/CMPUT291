@@ -1,9 +1,14 @@
 plugins {
     id 'java'
+    id 'application'
 }
 
 group 'com.n30phyte'
 version '1.0-SNAPSHOT'
+
+application {
+    mainClassName = 'com.n30phyte.Program.main'
+}
 
 java {
     sourceCompatibility = 'VERSION_1_8'
