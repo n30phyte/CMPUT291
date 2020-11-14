@@ -2,9 +2,9 @@ import blessed
 
 from database import Database
 
-user_id = None
+user_id = ""
 content_license = "CC BY-SA 2.5"
-focus_post = None
+focus_post = {}
 db = None
 
 
@@ -26,7 +26,6 @@ def prompt_login():
 # completed
 def user_report(uid):
     global user_id
-    user_id = int(uid)
     result = db.get_report(user_id)
     print("user report for:", uid)
     print("number of questions owned (avg score): {} ({})".format(result['num_questions'], result['avg_q_votes']))
@@ -164,7 +163,5 @@ def vote():
 if __name__ == '__main__':
     # set up db stuff
     db = Database(27017)
-    db.new_question(-1, "uwu", "uwu cummies", [])
-    db.search_question(["macos"])
     # start
     prompt_login()

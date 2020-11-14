@@ -1,4 +1,5 @@
 from datetime import datetime
+import random
 from typing import List
 
 import pymongo
@@ -23,8 +24,8 @@ class Database:
     tag_collection = None
     vote_collection = None
 
-    next_post_id = 0
-    next_tag_id = 0
+    used_post_ids = set()
+    used_tag_ids = set()
 
     def __init__(self, port):
         client = pymongo.MongoClient('localhost', port)
@@ -34,18 +35,12 @@ class Database:
         self.tag_collection = database['Tags']
         self.vote_collection = database['Votes']
 
-        latest_post = self.post_collection.find_one(sort=[("Id", pymongo.DESCENDING)])
-        self.next_post_id = int(latest_post['Id']) + 1
-
-        latest_tag = self.tag_collection.find_one(sort=[("Id", pymongo.DESCENDING)])
-        self.next_tag_id = int(latest_tag['Id']) + 1
-
     def get_report(self, user: str):
         questions = self.post_collection.find({
             "OwnerUserId": {"$eq": user},
             "PostTypeId": {"$eq": "2"}
         })
-        num_questions = len(questions)
+        num_questions = len(list(questions))
         question_votes = []
         for q in questions:
             # find number of votes and add to a list
@@ -74,11 +69,19 @@ class Database:
             'avg_a_votes': avg_a_votes
         }
 
-    def new_question(self, user: int, title: str, body: str, tags: List[str]):
+    def new_question(self, user: str, title: str, body: str, tags: List[str]) -> dict:
 
         self.insert_tags(tags)
 
-        question = {'Id': str(self.next_post_id),
+        found_id = False
+        post_id = 0
+
+        while not found_id:
+            post_id = int(random.randint(1, 999999))
+            if self.post_collection.find_one({'Id': str(post_id)}) is None:
+                found_id = True
+
+        question = {'Id': str(post_id),
                     'OwnerUserId': user,
                     'Title': title,
                     'Body': body,
@@ -91,8 +94,6 @@ class Database:
                     'CommentCount': 0,
                     'FavouriteCount': 0,
                     'ContentLicense': 'CC BY-SA 2.5'}
-
-        self.next_post_id += 1
 
         return question
 
@@ -110,7 +111,7 @@ class Database:
 
         return results
 
-    def visit_question(self, question_id: int):
+    def visit_question(self, question_id: str):
         # update value in collection
         self.post_collection.update_one({
             'Id': question_id
@@ -120,8 +121,17 @@ class Database:
             }
         })
 
-    def answer_question(self, user: int, question_id: int, body: str):
-        answer = {'Id': str(self.next_post_id),
+    def answer_question(self, user: str, question_id: str, body: str):
+
+        found_id = False
+        post_id = 0
+
+        while not found_id:
+            post_id = int(random.randint(1,999999))
+            if self.post_collection.find_one({'Id': str(post_id)}) is None:
+                found_id = True
+
+        answer = {'Id': str(post_id),
                   'OwnerUserId': user,
                   'Body': body,
                   'CreationDate': date_today(),
@@ -130,11 +140,10 @@ class Database:
                   'CommentCount': 0,
                   'ContentLicense': 'CC BY-SA 2.5',
                   'ParentId': question_id}
-        self.next_post_id += 1
 
         return answer
 
-    def get_answers(self, question_id: int):
+    def get_answers(self, question_id: str):
         question_post = self.post_collection.find_one({'$and': [{'Id': question_id},
                                                                 {'PostTypeId': 1}]})
 
@@ -150,7 +159,16 @@ class Database:
         return output
 
     def insert_tags(self, tags: List[str]):
+
         for tag in tags:
-            self.tag_collection.insert_one({'Id': str(self.next_tag_id),
-                                            'TagName': tag})
-            self.next_tag_id += 1
+            if self.vote_collection.find_one({'TagName': tag}) is None:
+                found_id = False
+                vote_id = 0
+
+                while not found_id:
+                    vote_id = int(random.randint(1, 999999))
+                    if self.vote_collection.find_one({'Id': str(vote_id)}) is None:
+                        found_id = True
+
+                self.tag_collection.insert_one({'Id': str(vote_id),
+                                                'TagName': tag})
