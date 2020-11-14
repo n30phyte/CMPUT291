@@ -53,7 +53,10 @@ class Database:
                 'PostId': q['Id']
             })))
             pass
-        avg_q_votes = sum(question_votes) / len(question_votes)
+        if len(question_votes) > 0:
+            avg_q_votes = sum(question_votes) / len(question_votes)
+        else:
+            avg_q_votes = 0
 
         answers = self.post_collection.find({
             "OwnerUserId": {"$eq": user},
@@ -65,7 +68,10 @@ class Database:
             answer_votes.append(len(self.vote_collection.find({
                 'PostId': a['Id']
             })))
-        avg_a_votes = sum(answer_votes) / len(answer_votes)
+        if len(answer_votes) > 0:
+            avg_a_votes = sum(answer_votes) / len(answer_votes)
+        else:
+            avg_a_votes = 0
 
         return {
             'num_questions': num_questions,
