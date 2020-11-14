@@ -28,8 +28,16 @@ def user_report(uid):
     global user_id
     result = db.get_report(user_id)
     print("user report for:", uid)
-    print("number of questions owned (avg score): {} ({})".format(result['num_questions'], result['avg_q_votes']))
-    print("number of answers   owned (avg score): {} ({})".format(result['num_answers'], result['avg_a_votes']))
+    print(
+        "number of questions owned (avg score): {} ({})".format(
+            result["num_questions"], result["avg_q_votes"]
+        )
+    )
+    print(
+        "number of answers   owned (avg score): {} ({})".format(
+            result["num_answers"], result["avg_a_votes"]
+        )
+    )
     prompt_menu()
 
 
@@ -69,18 +77,24 @@ def search_questions():
     keywords = input("search keywords: ").split()
     results = db.search_question(keywords)
     num = 1
+
     for result in results:
-        print("{}. title: {}".format(num, result['Title']))
-        print("    creation date: {}; score: {}; answer count: {}".format(result['CreationDate'], result['Score'], result['AnswerCount']))
+        print("{}. title: {}".format(num, result["Title"]))
+        print(
+            "    creation date: {}; score: {}; answer count: {}".format(
+                result["CreationDate"], result["Score"], result["AnswerCount"]
+            )
+        )
         num += 1
 
     action = input("select a post by it's number or enter 0 to return to menu")
+
     if action == "0":
         prompt_menu()
     elif int(action) <= len(results):
         global focus_post
         focus_post = results[int(action)]
-        db.visit_question(focus_post['Id'])
+        db.visit_question(focus_post["Id"])
         question()
     else:
         print("error: please choose one of the actions")
@@ -89,9 +103,9 @@ def search_questions():
 # complete
 def question():
     print("question: ")
-    print("title: {}".format(focus_post['title']))
-    print("body: {}".format(focus_post['body']))
-    print("tags: {}".format(focus_post['tags']))
+    print("title: {}".format(focus_post["Title"]))
+    print("body: {}".format(focus_post["Body"]))
+    print("tags: {}".format(focus_post["Tags"]))
 
     print("select an action:")
     print("1. answer")
@@ -118,7 +132,7 @@ def answer_question():
     global focus_post
     global user_id
     # change focus post to answer
-    focus_post = db.answer_question(user_id, focus_post['Id'], answer_text)
+    focus_post = db.answer_question(user_id, focus_post["Id"], answer_text)
     answer()
 
 
@@ -128,16 +142,16 @@ def list_answers():
     #  - accepted answer is first + marked with a star.
     #  - display first 80 char of body text, creation date, score.
     #  - user can select answer to see all fields of answer + perform answer actions
-    answers = db.get_answers(focus_post['Id'])
+    answers = db.get_answers(focus_post["Id"])
 
 
 # complete
 def answer():
     print("answer: ")
     global focus_post
-    print("title: {}".format(focus_post['title']))
-    print("body: {}".format(focus_post['body']))
-    print("tags: {}".format(focus_post['tags']))
+    print("title: {}".format(focus_post["Title"]))
+    print("body: {}".format(focus_post["Body"]))
+    print("tags: {}".format(focus_post["Tags"]))
 
     print("select an action:")
     print("1. vote")
@@ -160,7 +174,7 @@ def vote():
     pass
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # set up db stuff
     db = Database(27017)
     # start
