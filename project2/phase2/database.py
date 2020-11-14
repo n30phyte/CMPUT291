@@ -41,15 +41,38 @@ class Database:
         self.next_tag_id = latest_tag['Id'] + 1
 
     def get_report(self, user: str):
-        num_q = self.post_collection.find({
+        questions = self.post_collection.find({
             "OwnerUserId": {"$eq": user},
             "PostTypeId": {"$eq": "2"}
-        }).count()
+        })
+        num_questions = len(questions)
+        question_votes = []
+        for q in questions:
+            # find number of votes and add to a list
+            question_votes.append(len(self.vote_collection.find({
+                'PostId': q['Id']
+            })))
+            pass
+        avg_q_votes = sum(question_votes) / len(question_votes)
 
-        num_a = self.post_collection.find({
+        answers = self.post_collection.find({
             "OwnerUserId": {"$eq": user},
             "PostTypeId": {"$eq": "2"}
         }).count()
+        num_answers = len(answers)
+        answer_votes = []
+        for a in answers:
+            answer_votes.append(len(self.vote_collection.find({
+                'PostId': a['Id']
+            })))
+        avg_a_votes = sum(answer_votes) / len(answer_votes)
+
+        return {
+            'num_questions': num_questions,
+            'avg_q_votes': avg_q_votes,
+            'num_answers': num_answers,
+            'avg_a_votes': avg_a_votes
+        }
 
     def new_question(self, user: int, title: str, body: str, tags: List[str]):
 
@@ -86,6 +109,16 @@ class Database:
             results.extend(list(result))
 
         return results
+
+    def visit_question(self, question_id: int):
+        # update value in collection
+        self.post_collection.update_one({
+            'Id': question_id
+        }, {
+            '$inc': {
+                'ViewCount': 1
+            }
+        })
 
     def answer_question(self, user: int, question_id: int, body: str):
         answer = {'Id': self.next_post_id,

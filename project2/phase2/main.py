@@ -7,6 +7,7 @@ content_license = "CC BY-SA 2.5"
 focus_post = None
 db = None
 
+
 # todo: "after each action, the user should be able to return to the main menu for further operations
 
 # complete
@@ -20,16 +21,15 @@ def prompt_login():
     else:
         print("error: uid must be all numeric, proceeding to menu...")
 
-# todo: cynthia
+
+# completed
 def user_report(uid):
     global user_id
     user_id = int(uid)
-    # todo: get user report if user exists
-    #  get success + stats from db
     result = db.get_report(user_id)
     print("user report for:", uid)
-    print("number of questions owned (avg score): {} ({})".format(result['num_q'], result['avg_q']))
-    print("number of answers   owned (avg score): {} ({})".format(result['num_a'], result['avg_a']))
+    print("number of questions owned (avg score): {} ({})".format(result['num_questions'], result['avg_q_votes']))
+    print("number of answers   owned (avg score): {} ({})".format(result['num_answers'], result['avg_a_votes']))
     prompt_menu()
 
 
@@ -62,13 +62,28 @@ def post_question():
     print("post created!")
     question()
 
+
 # todo: cynthia
+#  display accepted answer first
 def search_questions():
     keywords = input("search keywords: ").split()
-    # todo: search keywords in title body or tags (case intensitive)
-    #  for each matching question, display title, creation date, score, answer count
-    #  user can: select question to see all fields, view count of question += 1, perform action
     results = db.search_question(keywords)
+    num = 1
+    for result in results:
+        print("{}. title: {}".format(num, result['Title']))
+        print("    creation date: {}; score: {}; answer count: {}".format(result['CreationDate'], result['Score'], result['AnswerCount']))
+        num += 1
+
+    action = input("select a post by it's number or enter 0 to return to menu")
+    if action == "0":
+        prompt_menu()
+    elif int(action) <= len(results):
+        global focus_post
+        focus_post = results[int(action)]
+        db.visit_question(focus_post['Id'])
+        question()
+    else:
+        print("error: please choose one of the actions")
 
 
 # complete
@@ -96,12 +111,15 @@ def question():
         print("error: please choose one of the actions")
 
 
-# todo: cynthia
+# complete
 def answer_question():
-    answer = input("answer: ")
-    # todo: insert answer record into db w/ body field = answer
-    #  assign unique id, post type id = 2, post creation date = today, owner user id = user_id, parent_id = question_id
-    #  Score = 0,  CommentCount = 0, content license = content_license
+    answer_text = input("answer: ")
+    # todo: insert
+    global focus_post
+    global user_id
+    # change focus post to answer
+    focus_post = db.answer_question(user_id, focus_post['Id'], answer_text)
+    answer()
 
 
 # todo: michael
@@ -116,6 +134,7 @@ def list_answers():
 # complete
 def answer():
     print("answer: ")
+    global focus_post
     print("title: {}".format(focus_post['title']))
     print("body: {}".format(focus_post['body']))
     print("tags: {}".format(focus_post['tags']))
