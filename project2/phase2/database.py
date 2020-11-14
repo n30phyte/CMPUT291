@@ -40,6 +40,17 @@ class Database:
         latest_tag = self.tag_collection.find_one(sort=[("Id", pymongo.DESCENDING)])
         self.next_tag_id = latest_tag['Id'] + 1
 
+    def get_report(self, user: str):
+        num_q = self.post_collection.find({
+            "OwnerUserId": {"$eq": user},
+            "PostTypeId": {"$eq": "2"}
+        }).count()
+
+        num_a = self.post_collection.find({
+            "OwnerUserId": {"$eq": user},
+            "PostTypeId": {"$eq": "2"}
+        }).count()
+
     def new_question(self, user: int, title: str, body: str, tags: List[str]):
 
         self.insert_tags(tags)

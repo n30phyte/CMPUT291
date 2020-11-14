@@ -4,31 +4,36 @@ from database import Database
 
 user_id = None
 content_license = "CC BY-SA 2.5"
-post_id = None
+focus_post = None
+db = None
 
 # todo: "after each action, the user should be able to return to the main menu for further operations
 
-
+# complete
 def prompt_login():
     uid = input("user id (press enter to proceed without report): ")
     # verify uid is all numeric
     if uid.isdecimal():
-        # query for uid and present report
         user_report(uid)
     elif not uid:
-        print("no user id entered, proceeding...")
+        print("no user id entered, proceeding to menu...")
     else:
-        # todo: 3 uid attempts? if uid doesn't exist or if not all numbers
-        print("error: uid must be all numeric, proceeding...")
+        print("error: uid must be all numeric, proceeding to menu...")
 
-
+# todo: cynthia
 def user_report(uid):
+    global user_id
+    user_id = int(uid)
+    # todo: get user report if user exists
+    #  get success + stats from db
+    result = db.get_report(user_id)
     print("user report for:", uid)
-    print("...")
-    user_id = uid
+    print("number of questions owned (avg score): {} ({})".format(result['num_q'], result['avg_q']))
+    print("number of answers   owned (avg score): {} ({})".format(result['num_a'], result['avg_a']))
     prompt_menu()
 
 
+# complete
 def prompt_menu():
     print("select an action:")
     print("1. post a question")
@@ -46,23 +51,33 @@ def prompt_menu():
         print("error: please choose one of the actions")
 
 
+# complete
 def post_question():
     title = input("title: ")
     body = input("body: ")
-    tags = input("tags: ")
-    # todo: record post in db: unique id, post type id = 1, post creation date = today, owner user id = user_id
-    #  Score = 0, ViewCount = 0, AnswerCount = 0, CommentCount = 0, content license = content_license
-    # question_id =
+    tags = input("tags: ").split()
+    # create post and go to post
+    global focus_post
+    focus_post = db.new_question(user_id, title, body, tags)
+    print("post created!")
+    question()
 
-
+# todo: cynthia
 def search_questions():
-    keywords = input("search keywords: ")
+    keywords = input("search keywords: ").split()
     # todo: search keywords in title body or tags (case intensitive)
     #  for each matching question, display title, creation date, score, answer count
     #  user can: select question to see all fields, view count of question += 1, perform action
+    results = db.search_question(keywords)
 
 
+# complete
 def question():
+    print("question: ")
+    print("title: {}".format(focus_post['title']))
+    print("body: {}".format(focus_post['body']))
+    print("tags: {}".format(focus_post['tags']))
+
     print("select an action:")
     print("1. answer")
     print("2. list answers")
@@ -81,6 +96,7 @@ def question():
         print("error: please choose one of the actions")
 
 
+# todo: cynthia
 def answer_question():
     answer = input("answer: ")
     # todo: insert answer record into db w/ body field = answer
@@ -88,15 +104,22 @@ def answer_question():
     #  Score = 0,  CommentCount = 0, content license = content_license
 
 
+# todo: michael
 def list_answers():
     # todo: query for answers to question
     #  - accepted answer is first + marked with a star.
     #  - display first 80 char of body text, creation date, score.
     #  - user can select answer to see all fields of answer + perform answer actions
-    pass
+    answers = db.get_answers(focus_post['Id'])
 
 
+# complete
 def answer():
+    print("answer: ")
+    print("title: {}".format(focus_post['title']))
+    print("body: {}".format(focus_post['body']))
+    print("tags: {}".format(focus_post['tags']))
+
     print("select an action:")
     print("1. vote")
     print("2. go back to menu")
@@ -109,6 +132,7 @@ def answer():
         print("error: please choose one of the actions")
 
 
+# todo: michael
 def vote():
     # todo: user can vote on question/answer if not already voted on if logged in
     #  - anon users can vote w/ no constraint
