@@ -5,7 +5,7 @@ import sys
 if __name__ == "__main__":
     port = 27017
     if len(sys.argv) == 2:
-        port = sys.argv[1]
+        port = int(sys.argv[1])
     client = pymongo.MongoClient('localhost', port)
     db = client['291db']
 
