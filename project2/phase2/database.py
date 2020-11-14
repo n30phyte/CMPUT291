@@ -35,10 +35,10 @@ class Database:
         self.vote_collection = database['Votes']
 
         latest_post = self.post_collection.find_one(sort=[("Id", pymongo.DESCENDING)])
-        self.next_post_id = latest_post['Id'] + 1
+        self.next_post_id = int(latest_post['Id']) + 1
 
         latest_tag = self.tag_collection.find_one(sort=[("Id", pymongo.DESCENDING)])
-        self.next_tag_id = latest_tag['Id'] + 1
+        self.next_tag_id = int(latest_tag['Id']) + 1
 
     def get_report(self, user: str):
         questions = self.post_collection.find({
@@ -78,7 +78,7 @@ class Database:
 
         self.insert_tags(tags)
 
-        question = {'Id': self.next_post_id,
+        question = {'Id': str(self.next_post_id),
                     'OwnerUserId': user,
                     'Title': title,
                     'Body': body,
@@ -121,7 +121,7 @@ class Database:
         })
 
     def answer_question(self, user: int, question_id: int, body: str):
-        answer = {'Id': self.next_post_id,
+        answer = {'Id': str(self.next_post_id),
                   'OwnerUserId': user,
                   'Body': body,
                   'CreationDate': date_today(),
@@ -151,6 +151,6 @@ class Database:
 
     def insert_tags(self, tags: List[str]):
         for tag in tags:
-            self.tag_collection.insert_one({'Id': self.next_tag_id,
+            self.tag_collection.insert_one({'Id': str(self.next_tag_id),
                                             'TagName': tag})
             self.next_tag_id += 1

@@ -20,6 +20,7 @@ def prompt_login():
         print("no user id entered, proceeding to menu...")
     else:
         print("error: uid must be all numeric, proceeding to menu...")
+    prompt_menu()
 
 
 # completed
