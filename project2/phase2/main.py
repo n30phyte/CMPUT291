@@ -91,7 +91,7 @@ def search_questions():
         prompt_menu()
     elif int(action) <= len(results):
         global question_post
-        question_post = results[int(action)]
+        question_post = results[int(action) - 1]
         db.visit_question(question_post["Id"])
         question()
     else:
@@ -137,7 +137,10 @@ def list_answers():
     #  - accepted answer is first + marked with a star.
     #  - display first 80 char of body text, creation date, score.
     #  - user can select answer to see all fields of answer + perform answer actions
-    answers = db.get_answers(question_post["Id"])
+    (accepted_answer, answers) = db.get_answers(question_post["Id"])
+
+    if accepted_answer is not None:
+        print("* {}".format(accepted_answer["Body"][:80]))
 
 
 def answer():
