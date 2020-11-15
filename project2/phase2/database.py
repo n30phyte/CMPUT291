@@ -73,6 +73,8 @@ class Database:
 
         data["Id"] = post_id
 
+        self.post_collection.insert_one(data)
+
         return data
 
     def new_question(self, user: str, title: str, body: str, tags: List[str]) -> dict:
@@ -129,20 +131,15 @@ class Database:
 
     def get_answers(self, question_id: str):
         question_post = self.post_collection.find_one(
-            {"$and": [{"Id": question_id}, {"PostTypeId": 1}]}
+            {"Id": question_id, "PostTypeId": "1"}
         )
 
         accepted_answer_id = question_post["AcceptedAnswerId"]
         accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
 
-        answers = self.post_collection.find(
-            {"$and": [{"ParentId": question_id}, {"PostTypeId": 2}]}
-        )
+        answers = self.post_collection.find({"ParentId": question_id, "PostTypeId": "2"})
 
-        output = list(answers)
-        output.insert(0, accepted_answer)
-
-        return output
+        return (accepted_answer, list(answers))
 
     def insert_tags(self, tags: List[str]):
 
