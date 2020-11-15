@@ -31,27 +31,30 @@ class Database:
         self.vote_collection = database["Votes"]
 
     def get_report(self, user: str):
-        questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "2"})
-        num_questions = len(list(questions))
+        questions = self.post_collection.find(
+            {"OwnerUserId": user, "PostTypeId": "1"}
+        )
+        num_questions = questions.count()
+        print("testing:", )
         question_votes = []
         for q in questions:
             # find number of votes and add to a list
             question_votes.append(len(self.vote_collection.find({"PostId": q["Id"]})))
             pass
-        if len(question_votes) > 0:
-            avg_q_votes = sum(question_votes) / len(question_votes)
+        if num_questions > 0:
+            avg_q_votes = sum(question_votes) / num_questions
         else:
             avg_q_votes = 0
 
         answers = self.post_collection.find(
             {"OwnerUserId": {"$eq": user}, "PostTypeId": {"$eq": "2"}}
-        ).count()
-        num_answers = len(answers)
+        )
+        num_answers = questions.count()
         answer_votes = []
         for a in answers:
             answer_votes.append(len(self.vote_collection.find({"PostId": a["Id"]})))
-        if len(answer_votes) > 0:
-            avg_a_votes = sum(answer_votes) / len(answer_votes)
+        if num_answers > 0:
+            avg_a_votes = sum(answer_votes) / num_answers
         else:
             avg_a_votes = 0
 

@@ -2,13 +2,14 @@ from database import Database
 
 user_id = ""
 content_license = "CC BY-SA 2.5"
-focus_post = {}
+question_post = {}
+answer_post = {}
 db = None
 
 
 # todo: "after each action, the user should be able to return to the main menu for further operations
 
-# complete
+
 def prompt_login():
     uid = input("user id (press enter to proceed without report): ")
     # verify uid is all numeric
@@ -21,7 +22,6 @@ def prompt_login():
     prompt_menu()
 
 
-# completed
 def user_report(uid):
     global user_id
     result = db.get_report(user_id)
@@ -39,7 +39,6 @@ def user_report(uid):
     prompt_menu()
 
 
-# complete
 def prompt_menu():
     print("select an action:")
     print("1. post a question")
@@ -57,14 +56,13 @@ def prompt_menu():
         print("error: please choose one of the actions")
 
 
-# complete
 def post_question():
     title = input("title: ")
     body = input("body: ")
     tags = input("tags: ").split()
     # create post and go to post
-    global focus_post
-    focus_post = db.new_question(user_id, title, body, tags)
+    global question_post
+    question_post = db.new_question(user_id, title, body, tags)
     print("post created!")
     question()
 
@@ -76,7 +74,8 @@ def search_questions():
     keywords = input("search keywords: ").split()
     results = db.search_question(keywords)
 
-    for i in range(len(results)):
+    # todo: remove min 5 range later
+    for i in range(min(len(results), 5)):
         post = results[i]
         print("{}. title: {}".format(i + 1, post["Title"]))
         print(
@@ -85,25 +84,25 @@ def search_questions():
             )
         )
 
-    action = input("select a post by it's number or enter 0 to return to menu")
+    print("select a post by it's number or enter 0 to return to menu")
+    action = input()
 
     if action == "0":
         prompt_menu()
     elif int(action) <= len(results):
-        global focus_post
-        focus_post = results[int(action)]
-        db.visit_question(focus_post["Id"])
+        global question_post
+        question_post = results[int(action)]
+        db.visit_question(question_post["Id"])
         question()
     else:
         print("error: please choose one of the actions")
 
 
-# complete
 def question():
     print("question: ")
-    print("title: {}".format(focus_post["Title"]))
-    print("body: {}".format(focus_post["Body"]))
-    print("tags: {}".format(focus_post["Tags"]))
+    print("title: {}".format(question_post["Title"]))
+    print("body: {}".format(question_post["Body"]))
+    print("tags: {}".format(question_post["Tags"]))
 
     print("select an action:")
     print("1. answer")
@@ -123,14 +122,12 @@ def question():
         print("error: please choose one of the actions")
 
 
-# complete
 def answer_question():
     answer_text = input("answer: ")
-    # todo: insert
-    global focus_post
+    global answer_post
     global user_id
     # change focus post to answer
-    focus_post = db.answer_question(user_id, focus_post["Id"], answer_text)
+    answer_post = db.answer_question(user_id, question_post["Id"], answer_text)
     answer()
 
 
@@ -140,16 +137,19 @@ def list_answers():
     #  - accepted answer is first + marked with a star.
     #  - display first 80 char of body text, creation date, score.
     #  - user can select answer to see all fields of answer + perform answer actions
-    answers = db.get_answers(focus_post["Id"])
+    answers = db.get_answers(question_post["Id"])
 
 
-# complete
 def answer():
     print("answer: ")
-    global focus_post
-    print("title: {}".format(focus_post["Title"]))
-    print("body: {}".format(focus_post["Body"]))
-    print("tags: {}".format(focus_post["Tags"]))
+    global question_post
+    global answer_post
+    print("body: {}".format(answer_post["Body"]))
+
+    print("in response to question:")
+    print("    title: {}".format(question_post["Title"]))
+    print("    body: {}".format(question_post["Body"]))
+    print("    tags: {}".format(question_post["Tags"]))
 
     print("select an action:")
     print("1. vote")
