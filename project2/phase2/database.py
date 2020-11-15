@@ -144,6 +144,34 @@ class Database:
 
         return (accepted_answer, list(answers))
 
+    def vote(self, post_id: str, user_id: str) -> bool:
+        # if user already voted on post, do not vote and return false
+        if user_id and self.vote_collection.find_one({"PostId": post_id, "UserId": user_id}):
+            return False
+
+        # find unused id
+        found_id = False
+        vote_id = 0
+        while not found_id:
+            vote_id = int(random.randint(1, 999999))
+            if self.vote_collection.find_one({"Id": str(vote_id)}) is None:
+                found_id = True
+
+        # create new document and insert into collection
+        new_vote = {
+            "Id": str(vote_id),
+            "PostId": post_id,
+            "VoteTypeId": "2",
+            "CreationDate": date_today()
+        }
+        self.vote_collection.insert_one(new_vote)
+
+        # if user id is set, increase score field in Posts by 1
+        if user_id:
+            self.post_collection.update_one({"Id": post_id}, {"$inc": {"Score": 1}})
+
+        return True
+
     def insert_tags(self, tags: List[str]):
 
         for tag in tags:

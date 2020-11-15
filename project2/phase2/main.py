@@ -4,6 +4,7 @@ user_id = ""
 content_license = "CC BY-SA 2.5"
 question_post = {}
 answer_post = {}
+current_post = {}
 db = None
 
 
@@ -67,7 +68,7 @@ def post_question():
     question()
 
 
-# todo: cynthia
+# todo: michael
 #  display accepted answer first
 #  check if number of results are 0
 def search_questions():
@@ -115,7 +116,8 @@ def question():
     elif action == "2":
         list_answers()
     elif action == "3":
-        vote()
+        db.vote(question_post["Id"], user_id)
+        question()
     elif action == "4":
         prompt_menu()
     else:
@@ -190,20 +192,12 @@ def answer():
     print("2. go back to menu")
     action = input()
     if action == "1":
-        vote()
+        db.vote(answer_post["Id"], user_id)
+        answer()
     elif action == "2":
         prompt_menu()
     else:
         print("error: please choose one of the actions")
-
-
-# todo: michael
-def vote():
-    # todo: user can vote on question/answer if not already voted on if logged in
-    #  - anon users can vote w/ no constraint
-    #  - record votes w/ unique vote id, post id = post_id, vote type id = 2, creation date = today
-    #  - if user id is set, score field in Posts increases by 1
-    pass
 
 
 if __name__ == "__main__":
