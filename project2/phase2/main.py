@@ -131,17 +131,48 @@ def answer_question():
     answer()
 
 
-# todo: michael
 def list_answers():
-    # todo: query for answers to question
-    #  - accepted answer is first + marked with a star.
-    #  - display first 80 char of body text, creation date, score.
-    #  - user can select answer to see all fields of answer + perform answer actions
     (accepted_answer, answers) = db.get_answers(question_post["Id"])
 
-    if accepted_answer is not None:
-        print("* {}".format(accepted_answer["Body"][:80]))
+    ans_count = 1
 
+    if accepted_answer is not None:
+        print("\nAccepted Answer:\n")
+
+        print("* {}. {}{}".format(ans_count, accepted_answer["Body"][:80], "..." if len(accepted_answer["Body"]) > 80 else ""))
+
+        print("Post Date: {}".format(accepted_answer["CreationDate"][:10]))
+        print("Score: {}".format(accepted_answer["Score"]))
+
+        ans_count += 1
+
+    print("\nAnswers:\n")
+
+    for ans in answers:
+        if ans["Id"] != accepted_answer["Id"]:
+
+            print("{}. {}{}".format(ans_count, ans["Body"][:80], "..." if len(ans["Body"]) > 80 else ""))
+
+            print("Post Date: {}".format(ans["CreationDate"][:10]))
+            print("Score: {}".format(ans["Score"]))
+            print()
+            ans_count += 1
+
+    all_answers = [accepted_answer]
+    all_answers.extend(answers)
+
+    selected = False
+
+    while not selected:
+        selection = int(input("\nPlease select an answer to read: ")) - 1
+
+        if selection < len(all_answers):
+            global answer_post
+            answer_post = all_answers[selection]
+            selected = True
+            answer()
+        else:
+            print("Incorrect number. Please try again.")
 
 def answer():
     print("answer: ")
