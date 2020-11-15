@@ -68,35 +68,35 @@ def post_question():
     question()
 
 
-# todo: michael
-#  display accepted answer first
-#  check if number of results are 0
 def search_questions():
     keywords = input("search keywords: ").split()
     results = db.search_question(keywords)
-
-    # todo: remove min 5 range later
-    for i in range(min(len(results), 5)):
-        post = results[i]
-        print("{}. title: {}".format(i + 1, post["Title"]))
-        print(
-            "    creation date: {}; score: {}; answer count: {}".format(
-                post["CreationDate"], post["Score"], post["AnswerCount"]
-            )
-        )
-
-    print("select a post by it's number or enter 0 to return to menu")
-    action = input()
-
-    if action == "0":
+    if len(results) == 0:
+        print("No results found.")
         prompt_menu()
-    elif int(action) <= len(results):
-        global question_post
-        question_post = results[int(action) - 1]
-        db.visit_question(question_post["Id"])
-        question()
     else:
-        print("error: please choose one of the actions")
+        # todo: remove min 5 range later
+        for i in range(min(len(results), 5)):
+            post = results[i]
+            print("{}. title: {}".format(i + 1, post["Title"]))
+            print(
+                "    creation date: {}; score: {}; answer count: {}".format(
+                    post["CreationDate"], post["Score"], post["AnswerCount"]
+                )
+            )
+
+        print("select a post by it's number or enter 0 to return to menu")
+        action = input()
+
+        if action == "0":
+            prompt_menu()
+        elif int(action) <= len(results):
+            global question_post
+            question_post = results[int(action) - 1]
+            db.visit_question(question_post["Id"])
+            question()
+        else:
+            print("error: please choose one of the actions")
 
 
 def question():
