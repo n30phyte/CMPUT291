@@ -12,9 +12,7 @@ def date_today() -> str:
 def tag_string(tags: List[str]) -> str:
     output = ""
     for tag in tags:
-        output += "<{}> ".format(tag)
-
-    output.strip()
+        output += "<{}>".format(tag)
 
     return output
 
@@ -33,9 +31,7 @@ class Database:
         self.vote_collection = database["Votes"]
 
     def get_report(self, user: str):
-        questions = self.post_collection.find(
-            {"OwnerUserId": {"$eq": user}, "PostTypeId": {"$eq": "2"}}
-        )
+        questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "2"})
         num_questions = len(list(questions))
         question_votes = []
         for q in questions:
@@ -120,18 +116,7 @@ class Database:
 
         for keyword in keywords:
             result = self.post_collection.find(
-                {
-                    "$and": [
-                        {
-                            "$or": [
-                                {"Body": keyword},
-                                {"Title": keyword},
-                                {"Tags": "<" + keyword + ">"},
-                            ]
-                        },
-                        {"PostTypeId": 1},
-                    ]
-                }
+                {"$text": {"$search": keyword}, "PostTypeId": "1"}
             )
 
             results.extend(list(result))

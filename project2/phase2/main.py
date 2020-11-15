@@ -1,5 +1,3 @@
-import blessed
-
 from database import Database
 
 user_id = ""
@@ -73,19 +71,19 @@ def post_question():
 
 # todo: cynthia
 #  display accepted answer first
+#  check if number of results are 0
 def search_questions():
     keywords = input("search keywords: ").split()
     results = db.search_question(keywords)
-    num = 1
 
-    for result in results:
-        print("{}. title: {}".format(num, result["Title"]))
+    for i in range(len(results)):
+        post = results[i]
+        print("{}. title: {}".format(i + 1, post["Title"]))
         print(
             "    creation date: {}; score: {}; answer count: {}".format(
-                result["CreationDate"], result["Score"], result["AnswerCount"]
+                post["CreationDate"], post["Score"], post["AnswerCount"]
             )
         )
-        num += 1
 
     action = input("select a post by it's number or enter 0 to return to menu")
 
