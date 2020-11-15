@@ -37,14 +37,23 @@ if __name__ == "__main__":
 
         post_collection.insert_many(posts_data)
 
+        post_collection.create_index("Id", unique=True, background=True)
+        post_collection.create_index([("Body", pymongo.TEXT),
+                                      ("Title", pymongo.TEXT),
+                                      ("Tags", pymongo.TEXT)],
+                                     background=True)
+
     with open("Tags.json") as tags:
         tags_data = json.load(tags)
         tags_data = tags_data["tags"]["row"]
 
         tag_collection.insert_many(tags_data)
 
+        tag_collection.create_index("Id", unique=True, background=True)
+
     with open("Votes.json") as votes:
         votes_data = json.load(votes)
         votes_data = votes_data["votes"]["row"]
 
         vote_collection.insert_many(votes_data)
+        vote_collection.create_index("Id", unique=True, background=True)
