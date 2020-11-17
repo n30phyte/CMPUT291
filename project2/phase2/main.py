@@ -157,14 +157,12 @@ def list_answers():
         print("\nAnswers:\n")
 
         for ans in answers:
-            if ans["Id"] != accepted_answer["Id"]:
+            print("{}. {}{}".format(ans_count, ans["Body"][:80], "..." if len(ans["Body"]) > 80 else ""))
 
-                print("{}. {}{}".format(ans_count, ans["Body"][:80], "..." if len(ans["Body"]) > 80 else ""))
-
-                print("Post Date: {}".format(ans["CreationDate"][:10]))
-                print("Score: {}".format(ans["Score"]))
-                print()
-                ans_count += 1
+            print("Post Date: {}".format(ans["CreationDate"][:10]))
+            print("Score: {}".format(ans["Score"]))
+            print()
+            ans_count += 1
 
         all_answers.extend(answers)
 

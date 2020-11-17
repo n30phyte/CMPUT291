@@ -17,6 +17,16 @@ def tag_string(tags: List[str]) -> str:
     return output
 
 
+def deduplicate_posts(posts: List[dict]) -> List[dict]:
+    output_list = [posts[0]]
+
+    for post in posts:
+        if post not in output_list:
+            output_list.append(post)
+
+    return output_list
+
+
 class Database:
     post_collection = None
     tag_collection = None
@@ -78,8 +88,8 @@ class Database:
         data["CommentCount"] = 0
         data["ContentLicense"] = "CC BY-SA 2.5"
 
-        self.post_collection.insert_one(data)
-
+        document = self.post_collection.insert_one(data)
+        print(document.inserted_id)
         return data
 
     def new_question(self, user: str, title: str, body: str, tags: List[str]) -> dict:
@@ -128,7 +138,7 @@ class Database:
 
             results.extend(list(result))
 
-        return results
+        return deduplicate_posts(results)
 
     def visit_question(self, question_id: str):
         # update value in collection
@@ -138,14 +148,15 @@ class Database:
         question_post = self.post_collection.find_one(
             {"Id": question_id, "PostTypeId": "1"}
         )
-        accepted_answer = None
 
+        accepted_answer = None
+        accepted_answer_id = ''
         if question_post is not None:
             accepted_answer_id = question_post["AcceptedAnswerId"]
             accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
 
         answers = self.post_collection.find(
-            {"ParentId": question_id, "PostTypeId": "2"}
+            {"$and": [{"Id": {"$ne": accepted_answer_id}}, {"ParentId": question_id}, {"PostTypeId": 2}]}
         )
 
         return (accepted_answer, list(answers))
