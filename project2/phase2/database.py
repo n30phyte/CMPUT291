@@ -116,6 +116,8 @@ class Database:
             "ParentId": question_id,
         }
 
+        self.post_collection.update_one({"Id": question_id}, {"$inc": {"AnswerCount": 1}})
+
         return self.new_post(user, answer)
 
     def search_question(self, keywords: List[str]):
