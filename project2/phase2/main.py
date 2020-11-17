@@ -202,6 +202,7 @@ def answer():
 
 if __name__ == "__main__":
     # set up db stuff
+    # todo: redirect to given port
     db = Database(27017)
     # start
     prompt_login()
