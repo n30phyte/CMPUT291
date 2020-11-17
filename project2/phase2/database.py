@@ -31,9 +31,7 @@ class Database:
         self.vote_collection = database["Votes"]
 
     def get_report(self, user: str):
-        questions = self.post_collection.find(
-            {"OwnerUserId": user, "PostTypeId": "1"}
-        )
+        questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "1"})
         num_questions = questions.count()
         print("testing:", )
         question_votes = []
@@ -65,7 +63,7 @@ class Database:
             "avg_a_votes": avg_a_votes,
         }
 
-    def new_post(self, data: dict) -> dict:
+    def new_post(self, user: str, data: dict) -> dict:
         found_id = False
         post_id = 0
 
@@ -74,7 +72,12 @@ class Database:
             if self.post_collection.find_one({"Id": str(post_id)}) is None:
                 found_id = True
 
+        data["OwnerUserId"] = user
         data["Id"] = post_id
+        data["CreationDate"] = date_today()
+        data["Score"] = 0
+        data["CommentCount"] = 0
+        data["ContentLicense"] = "CC BY-SA 2.5"
 
         self.post_collection.insert_one(data)
 
@@ -85,44 +88,44 @@ class Database:
         self.insert_tags(tags)
 
         question = {
-            "OwnerUserId": user,
             "Title": title,
             "Body": body,
             "Tags": tag_string(tags),
-            "CreationDate": date_today(),
             "PostTypeId": 1,
-            "Score": 0,
             "ViewCount": 0,
             "AnswerCount": 0,
-            "CommentCount": 0,
             "FavouriteCount": 0,
-            "ContentLicense": "CC BY-SA 2.5",
         }
 
-        return self.new_post(question)
+        return self.new_post(user, question)
 
     def answer_question(self, user: str, question_id: str, body: str):
 
         answer = {
-            "OwnerUserId": user,
             "Body": body,
-            "CreationDate": date_today(),
             "PostTypeId": 2,
-            "Score": 0,
-            "CommentCount": 0,
-            "ContentLicense": "CC BY-SA 2.5",
             "ParentId": question_id,
         }
 
-        return self.new_post(answer)
+        return self.new_post(user, answer)
 
     def search_question(self, keywords: List[str]):
         results = []
 
         for keyword in keywords:
             result = self.post_collection.find(
-                {"$text": {"$search": keyword}, "PostTypeId": "1"}
-            )
+                {"$and": [
+                    {"PostTypeId": 1},
+                    {"$or": [
+                        {"Body": {
+                            "$regex": "{}".format(keyword),
+                            "$options": "i", }},
+                        {"Tags": {
+                            "$regex": "{}".format(keyword),
+                            "$options": "i", }},
+                        {"Title": {
+                            "$regex": "{}".format(keyword),
+                            "$options": "i", }}, ]}, ]})
 
             results.extend(list(result))
 
@@ -140,13 +143,17 @@ class Database:
         accepted_answer_id = question_post["AcceptedAnswerId"]
         accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
 
-        answers = self.post_collection.find({"ParentId": question_id, "PostTypeId": "2"})
+        answers = self.post_collection.find(
+            {"ParentId": question_id, "PostTypeId": "2"}
+        )
 
         return (accepted_answer, list(answers))
 
     def vote(self, post_id: str, user_id: str) -> bool:
         # if user already voted on post, do not vote and return false
-        if user_id and self.vote_collection.find_one({"PostId": post_id, "UserId": user_id}):
+        if user_id and self.vote_collection.find_one(
+                {"PostId": post_id, "UserId": user_id}
+        ):
             return False
 
         # find unused id
@@ -162,7 +169,7 @@ class Database:
             "Id": str(vote_id),
             "PostId": post_id,
             "VoteTypeId": "2",
-            "CreationDate": date_today()
+            "CreationDate": date_today(),
         }
         self.vote_collection.insert_one(new_vote)
 
