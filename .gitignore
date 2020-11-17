@@ -145,3 +145,4 @@ cython_debug/
 # Ctags
 tags
 project1/.idea/dataSources.xml
+project1/.idea/workspace.xml

@@ -101,7 +101,7 @@ class Database:
                 self.cursor.execute("SELECT MAX(pid) FROM posts;")
                 result = self.cursor.fetchone()
                 if result[0] is not None:
-                    self.pid_max = int(result[0]) + 1
+                    self.pid_max = int(result[0][1:]) + 1
 
                 self.cursor.execute("SELECT MAX(vno) FROM votes;")
                 result = self.cursor.fetchone()
@@ -168,7 +168,7 @@ class Database:
         if len(result) != 0:
             return False, "Username exists"
         else:
-            today = date.today().strftime()
+            today = date.today().strftime(DATE_FORMAT)
             self.cursor.execute(statement, (uid, name, password, city, today))
 
         self.connection.commit()
@@ -216,7 +216,7 @@ class Database:
     def new_post(self, title: str, body: str, poster: User) -> Post:
         statement = "INSERT INTO posts (pid, pdate, title, body, poster) VALUES (?, ?, ?, ?, ?);"
 
-        today = date.today().strftime(DATE_FORMAT)
+        today = date.today().strftime()
         post = Post(self.pid_max, today, title, body, poster)
         self.pid_max += 1
 
