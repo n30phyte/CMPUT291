@@ -15,7 +15,9 @@ def prompt_login():
     uid = input("user id (press enter to proceed without report): ")
     # verify uid is all numeric
     if uid.isdecimal():
-        user_report(uid)
+        global user_id
+        user_id = uid
+        user_report()
     elif not uid:
         print("no user id entered, proceeding to menu...")
     else:
@@ -23,10 +25,10 @@ def prompt_login():
     prompt_menu()
 
 
-def user_report(uid):
+def user_report():
     global user_id
     result = db.get_report(user_id)
-    print("user report for:", uid)
+    print("user report for:", user_id)
     print(
         "number of questions owned (avg score): {} ({})".format(
             result["num_questions"], result["avg_q_votes"]
@@ -138,6 +140,7 @@ def list_answers():
 
     ans_count = 1
 
+    all_answers = []
     if accepted_answer is not None:
         print("\nAccepted Answer:\n")
 
@@ -148,33 +151,39 @@ def list_answers():
 
         ans_count += 1
 
-    print("\nAnswers:\n")
+        all_answers.append(accepted_answer)
 
-    for ans in answers:
-        if ans["Id"] != accepted_answer["Id"]:
+    if len(answers) != 0:
+        print("\nAnswers:\n")
 
-            print("{}. {}{}".format(ans_count, ans["Body"][:80], "..." if len(ans["Body"]) > 80 else ""))
+        for ans in answers:
+            if ans["Id"] != accepted_answer["Id"]:
 
-            print("Post Date: {}".format(ans["CreationDate"][:10]))
-            print("Score: {}".format(ans["Score"]))
-            print()
-            ans_count += 1
+                print("{}. {}{}".format(ans_count, ans["Body"][:80], "..." if len(ans["Body"]) > 80 else ""))
 
-    all_answers = [accepted_answer]
-    all_answers.extend(answers)
+                print("Post Date: {}".format(ans["CreationDate"][:10]))
+                print("Score: {}".format(ans["Score"]))
+                print()
+                ans_count += 1
 
-    selected = False
+        all_answers.extend(answers)
 
-    while not selected:
-        selection = int(input("\nPlease select an answer to read: ")) - 1
+    if len(all_answers) == 0:
+        print("No Answers. Going back to Question view.")
+        question()
+    else:
+        selected = False
 
-        if selection < len(all_answers):
-            global answer_post
-            answer_post = all_answers[selection]
-            selected = True
-            answer()
-        else:
-            print("Incorrect number. Please try again.")
+        while not selected:
+            selection = int(input("\nPlease select an answer to read: ")) - 1
+
+            if selection < len(all_answers):
+                global answer_post
+                answer_post = all_answers[selection]
+                selected = True
+                answer()
+            else:
+                print("Incorrect number. Please try again.")
 
 def answer():
     print("answer: ")

@@ -33,34 +33,33 @@ class Database:
     def get_report(self, user: str):
         questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "1"})
         num_questions = questions.count()
-        print("testing:", )
-        question_votes = []
-        for q in questions:
-            # find number of votes and add to a list
-            question_votes.append(len(self.vote_collection.find({"PostId": q["Id"]})))
-            pass
-        if num_questions > 0:
-            avg_q_votes = sum(question_votes) / num_questions
-        else:
-            avg_q_votes = 0
 
-        answers = self.post_collection.find(
-            {"OwnerUserId": {"$eq": user}, "PostTypeId": {"$eq": "2"}}
-        )
+        avg_question_votes = 0
+
+        if num_questions != 0:
+            for q in questions:
+                # find number of votes and add to a list
+                avg_question_votes += self.vote_collection.count_documents({"PostId": q["Id"]})
+
+            avg_question_votes /= num_questions
+
+        answers = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "2"})
+
         num_answers = questions.count()
-        answer_votes = []
-        for a in answers:
-            answer_votes.append(len(self.vote_collection.find({"PostId": a["Id"]})))
-        if num_answers > 0:
-            avg_a_votes = sum(answer_votes) / num_answers
-        else:
-            avg_a_votes = 0
+
+        avg_answer_votes = 0
+
+        if num_answers != 0:
+            for a in answers:
+                avg_answer_votes += self.vote_collection.count_documents({"PostId": a["Id"]})
+
+            avg_answer_votes = avg_answer_votes / num_answers
 
         return {
             "num_questions": num_questions,
-            "avg_q_votes": avg_q_votes,
+            "avg_q_votes": avg_question_votes,
             "num_answers": num_answers,
-            "avg_a_votes": avg_a_votes,
+            "avg_a_votes": avg_answer_votes,
         }
 
     def new_post(self, user: str, data: dict) -> dict:
@@ -139,9 +138,11 @@ class Database:
         question_post = self.post_collection.find_one(
             {"Id": question_id, "PostTypeId": "1"}
         )
+        accepted_answer = None
 
-        accepted_answer_id = question_post["AcceptedAnswerId"]
-        accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
+        if question_post is not None:
+            accepted_answer_id = question_post["AcceptedAnswerId"]
+            accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
 
         answers = self.post_collection.find(
             {"ParentId": question_id, "PostTypeId": "2"}
