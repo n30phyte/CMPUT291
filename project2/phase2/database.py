@@ -62,7 +62,7 @@ class Database:
                 avg_answer_votes += self.vote_collection.count_documents({"PostId": a["Id"]})
             avg_answer_votes = avg_answer_votes / num_answers
 
-        total_votes = self.vote_collection.count_documents({"Id": user})
+        total_votes = self.vote_collection.count_documents({"UserId": user})
 
         return {
             "num_questions": num_questions,
@@ -161,7 +161,7 @@ class Database:
             {"$and": [{"Id": {"$ne": accepted_answer_id}}, {"ParentId": question_id}, {"PostTypeId": "2"}]}
         )
 
-        return (accepted_answer, list(answers))
+        return accepted_answer, list(answers)
 
     def vote(self, post_id: str, user_id: str) -> bool:
         # if user already voted on post, do not vote and return false
@@ -183,6 +183,7 @@ class Database:
             "Id": str(vote_id),
             "PostId": post_id,
             "VoteTypeId": "2",
+            "UserId": user_id,
             "CreationDate": date_today(),
         }
         self.vote_collection.insert_one(new_vote)

@@ -27,7 +27,6 @@ def login():
 
     # verify uid is all numeric
     if uid.isdecimal():
-
         global user_id
         user_id = uid
         user_report()
@@ -57,10 +56,8 @@ def user_report():
     print(term.ljust("Number of votes by user: ", 40))
     print(term.ljust(result["total_votes"]))
 
-    print(term.move_down(2))
-    print("Press any key to go to main menu")
-    with term.cbreak(), term.hidden_cursor():
-        term.inkey()
+    print(term.move_down())
+    input("Press enter key to go to main menu")
 
     global CURRENT_STATE
     CURRENT_STATE = "PROMPT"
@@ -124,6 +121,7 @@ def search():
 
     if len(results) == 0:
         print("No results found.")
+        input("Press enter key to go to main menu")
         CURRENT_STATE = "PROMPT"
     else:
         while True:
@@ -179,7 +177,14 @@ def question():
     elif action == "2":
         list_answers()
     elif action == "3":
-        db.vote(question_post["Id"], user_id)
+        result = db.vote(question_post["Id"], user_id)
+        if result:
+            print("Vote successful!")
+            input("Press enter key to continue")
+        else:
+            print("You already voted on this!")
+            input("Press enter key to continue")
+
     elif action == "4":
         global CURRENT_STATE
         CURRENT_STATE = "PROMPT"
