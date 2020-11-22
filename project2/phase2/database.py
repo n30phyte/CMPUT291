@@ -43,33 +43,29 @@ class Database:
     def get_report(self, user: str):
         questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "1"})
         num_questions = questions.count()
-
         avg_question_votes = 0
-
         if num_questions != 0:
             for q in questions:
                 # find number of votes and add to a list
                 avg_question_votes += self.vote_collection.count_documents({"PostId": q["Id"]})
-
             avg_question_votes /= num_questions
 
         answers = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "2"})
-
         num_answers = questions.count()
-
         avg_answer_votes = 0
-
         if num_answers != 0:
             for a in answers:
                 avg_answer_votes += self.vote_collection.count_documents({"PostId": a["Id"]})
-
             avg_answer_votes = avg_answer_votes / num_answers
+
+        total_votes = self.vote_collection.count_documents({"Id": user})
 
         return {
             "num_questions": num_questions,
             "avg_q_votes": avg_question_votes,
             "num_answers": num_answers,
             "avg_a_votes": avg_answer_votes,
+            "total_votes": total_votes
         }
 
     def new_post(self, user: str, data: dict) -> dict:

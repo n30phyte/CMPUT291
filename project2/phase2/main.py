@@ -48,7 +48,8 @@ def user_report():
             result["num_answers"], result["avg_a_votes"]
         )
     )
-    action = input("press any key to continue...")
+    print("number of votes registered for user: {}".format(result["total_votes"]))
+    input("press any key to continue...")
     prompt_menu()
 
 
