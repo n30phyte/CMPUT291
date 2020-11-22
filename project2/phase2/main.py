@@ -58,6 +58,10 @@ def user_report():
     print(term.ljust("Number of answers owned (avg score): ", 40))
     print(term.ljust("{} ({})".format(result["num_answers"], result["avg_a_votes"])))
 
+    print(term.move_down())
+    print(term.ljust("Number of votes by user: ", 40))
+    print(term.ljust(result["total_votes"]))
+
     print(term.move_down(4))
     input("Press any key to go to main menu")
 
