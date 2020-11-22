@@ -1,17 +1,21 @@
 from database import Database
+from prettytable import PrettyTable
+import blessed
+
+current_state = "LOGIN"
 
 user_id = ""
-content_license = "CC BY-SA 2.5"
 question_post = {}
 answer_post = {}
 current_post = {}
 db = None
 
 
+
 # todo: "after each action, the user should be able to return to the main menu for further operations
 
 
-def prompt_login():
+def login():
     uid = input("user id (press enter to proceed without report): ")
     # verify uid is all numeric
     if uid.isdecimal():
@@ -207,9 +211,24 @@ def answer():
         print("error: please choose one of the actions")
 
 
+def run_state():
+    states = {
+        "LOGIN": login,
+        "POST": post,
+        "SEARCH": search,
+        "QUESTION": question,
+    }
+
+    if current_state == "EXIT":
+        exit(0)
+    else:
+        states[current_state]()
+
+
 if __name__ == "__main__":
     # set up db stuff
     # todo: redirect to given port
     db = Database(27017)
+
     # start
     prompt_login()
