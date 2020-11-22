@@ -4,7 +4,7 @@ from database import Database
 from prettytable import PrettyTable
 from blessed import Terminal
 
-current_state = "LOGIN"
+CURRENT_STATE = "LOGIN"
 
 user_id = ""
 question_post = {}
@@ -13,108 +13,136 @@ current_post = {}
 db = None
 term = Terminal()
 
+
 # todo: "after each action, the user should be able to return to the main menu for further operations
 
 
-def clear_term(state: str):
+def clear_term(title: str):
     print(term.home + term.clear + term.move_y(0))
-    print(term.black_on_darkkhaki(term.center(state)))
+    print(term.black_on_darkkhaki(term.center(title)))
 
 
 def login():
-    clear_term("login")
-    uid = input("user id (press enter to proceed without report): ")
+    clear_term("Login")
+
+    print(term.move_y(int(term.height / 2)))
+    uid = input("User ID: ")
+
     # verify uid is all numeric
     if uid.isdecimal():
+
         global user_id
         user_id = uid
         user_report()
+
     elif not uid:
-        print("no user id entered, proceeding to menu...")
+        print("No user ID entered. Proceeding to Main Menu")
     else:
-        print("error: uid must be all numeric, proceeding to menu...")
-    prompt_menu()
+        print("Error: User ID must be numeric. Assuming null")
+
+    global CURRENT_STATE
+    CURRENT_STATE = "PROMPT"
 
 
 def user_report():
-    clear_term("user report")
     global user_id
+    clear_term("User Report for " + user_id)
+
     result = db.get_report(user_id)
-    print("user report for:", user_id)
-    print("number of questions owned (avg score): {} ({})".format(
-        result["num_questions"], result["avg_q_votes"]))
-    print("number of answers   owned (avg score): {} ({})".format(
-        result["num_answers"], result["avg_a_votes"]))
-    action = input("press any key to continue...")
-    prompt_menu()
+
+    print(term.ljust("Number of questions owned (avg score): ", 40))
+    print(term.ljust("{} ({})".format(result["num_questions"], result["avg_q_votes"])))
+
+    print(term.move_down())
+
+    print(term.ljust("Number of answers owned (avg score): ", 40))
+    print(term.ljust("{} ({})".format(result["num_answers"], result["avg_a_votes"])))
+
+    print(term.move_down(4))
+    input("Press any key to go to main menu")
+
+    global CURRENT_STATE
+    CURRENT_STATE = "PROMPT"
 
 
 def prompt_menu():
-    clear_term("menu")
-    print("select an action:")
-    print("1. post a question")
-    print("2. search for questions")
-    print("3. exit program")
+    clear_term("Main Menu")
+
+    print(term.move_y(int(term.height / 2) - 2))
+    print("Select an action:")
+    print("1. Post a question")
+    print("2. Search for questions")
+    print("3. Exit program")
+
+    global CURRENT_STATE
     action = input()
+
     if action == "1":
-        post_question()
+        CURRENT_STATE = "POST"
     elif action == "2":
-        search_questions()
+        CURRENT_STATE = "SEARCH"
     elif action == "3":
-        print("exiting program... cya!")
-        exit(0)
+        CURRENT_STATE = "EXIT"
     else:
         print("error: please choose one of the actions")
 
 
-def post_question():
-    clear_term("post a question")
-    title = input("title: ")
+def post():
+    clear_term("Post a new question")
+
+    print(term.move_y(int(term.height / 2) - 2))
+
+    title = input("Title: ")
+    print(term.move_down)
     body = input("body: ")
+    print(term.move_down)
     tags = input("tags: ").split()
+
     # create post and go to post
-    global question_post
+    global question_post, CURRENT_STATE
     question_post = db.new_question(user_id, title, body, tags)
-    question()
+
+    CURRENT_STATE = "QUESTION"
 
 
-def get_search_pages(questions):
-    for i in range(0, len(questions), 5):
-        yield questions[i:i + 5]
+def search():
+    global CURRENT_STATE, question_post
 
+    clear_term("Search for Question")
 
-def print_search_questions(page, results):
-    for i in range(len(results[page])):
-        post = results[page][i]
-        print("{}. title: {}".format(i + 1, post["Title"]))
-        print("    creation date: {}; score: {}; answer count: {}".format(
-            post["CreationDate"], post["Score"], post["AnswerCount"]))
-
-
-def search_questions():
-    clear_term("search question")
     keywords = input("search keywords: ").split()
-    results = list(get_search_pages(db.search_question(keywords)))
+
+    results = list(db.search_question(keywords))
     page = 0
+
+    results_table = PrettyTable()
+    results_table.field_names = ["Id", "Title", "Creation Date", "Score", "Answer Count"]
+
+    for post in results:
+        results_table.add_row([post["Id"], post["Title"], post["CreationDate"], post["Score"], post["AnswerCount"]])
+
     if len(results) == 0:
         print("No results found.")
-        prompt_menu()
+        CURRENT_STATE = "PROMPT"
     else:
         while True:
-            print_search_questions(page, results)
+
+            print(results_table.get_string(start = page * 5, end = (page + 1) * 5))
 
             print("6. show more")
-            print("select a post by it's number or enter 0 to return to menu")
+            print("Select a post by it's order in the table or enter 0 to return to menu")
             action = input()
 
             if action == "0":
-                prompt_menu()
+                CURRENT_STATE = "PROMPT"
                 break
-            elif int(action) <= len(results):
-                global question_post
-                question_post = results[page][int(action) - 1]
+
+            elif int(action) <= min(len(results), 5):
+
+                question_post = results[(int(action) - 1) + (5 * page)]
                 db.visit_question(question_post["Id"])
-                question()
+
+                CURRENT_STATE = "QUESTION"
                 break
             elif action == "6":
                 # show more results
@@ -127,17 +155,23 @@ def search_questions():
 
 
 def question():
-    clear_term("question")
-    print("question: ")
-    print("title: {}".format(question_post["Title"]))
-    print("body: {}".format(question_post["Body"]))
-    print("tags: {}".format(question_post["Tags"]))
+    clear_term("Question")
 
-    print("select an action:")
-    print("1. answer")
-    print("2. list answers")
-    print("3. vote")
-    print("4. go back to menu")
+    question_table = PrettyTable()
+
+    question_table.add_row(["Title", question_post["Title"]])
+    question_table.add_row(["Body", question_post["Body"]])
+    question_table.add_row(["Tags", question_post["Tags"]])
+
+    question_table.header = False
+
+    print(term.center(question_table))
+
+    print("Select an action:")
+    print("1. Answer")
+    print("2. List Answers")
+    print("3. Vote")
+    print("4. Go back to menu")
     action = input()
     if action == "1":
         answer_question()
@@ -145,20 +179,22 @@ def question():
         list_answers()
     elif action == "3":
         db.vote(question_post["Id"], user_id)
-        question()
     elif action == "4":
-        prompt_menu()
+        global CURRENT_STATE
+        CURRENT_STATE = "PROMPT"
     else:
         print("error: please choose one of the actions")
 
 
 def answer_question():
+    global answer_post, user_id, CURRENT_STATE
+
     answer_text = input("answer: ")
-    global answer_post
-    global user_id
-    # change focus post to answer
+
+    # Change answer_post to current answer
     answer_post = db.answer_question(user_id, question_post["Id"], answer_text)
-    answer()
+
+    CURRENT_STATE = "ANSWER"
 
 
 def list_answers():
@@ -167,6 +203,9 @@ def list_answers():
     ans_count = 1
 
     all_answers = []
+
+    global CURRENT_STATE
+
     if accepted_answer is not None:
         print("\nAccepted Answer:\n")
 
@@ -197,7 +236,8 @@ def list_answers():
 
     if len(all_answers) == 0:
         print("No Answers. Going back to Question view.")
-        question()
+
+        CURRENT_STATE = "QUESTION"
     else:
         selected = False
 
@@ -208,53 +248,67 @@ def list_answers():
                 )) - 1
 
             if selection == 0:
-                prompt_menu()
+                CURRENT_STATE = "PROMPT"
             elif selection < len(all_answers):
                 global answer_post
                 answer_post = all_answers[selection]
                 selected = True
-                answer()
+                CURRENT_STATE = "ANSWER"
             else:
                 print("Incorrect number. Please try again.")
 
 
 def answer():
-    clear_term("answer")
-    print("answer: ")
-    global question_post
-    global answer_post
-    print("body: {}".format(answer_post["Body"]))
+    global question_post, answer_post, CURRENT_STATE
 
-    print("in response to question:")
-    print("    title: {}".format(question_post["Title"]))
-    print("    body: {}".format(question_post["Body"]))
-    print("    tags: {}".format(question_post["Tags"]))
+    clear_term("Answer")
 
-    print("select an action:")
-    print("1. vote")
-    print("2. go back to menu")
+    print("Answer: ")
+
+    answer_table = PrettyTable()
+    answer_table.add_row(["Body", answer_post["Body"]])
+
+    print(term.center(str(answer_table)))
+
+    print("Original question:")
+    question_table = PrettyTable()
+
+    question_table.add_row(["Title", question_post["Title"]])
+    question_table.add_row(["Body", question_post["Body"]])
+    question_table.add_row(["Tags", question_post["Tags"]])
+
+    question_table.header = False
+
+    print(term.center(str(question_table)))
+
+    print("Select an action:")
+    print("1. Vote")
+    print("2. Go back to menu")
     action = input()
     if action == "1":
         db.vote(answer_post["Id"], user_id)
-        answer()
     elif action == "2":
-        prompt_menu()
+        CURRENT_STATE = "PROMPT"
     else:
         print("error: please choose one of the actions")
 
 
 def run_state():
     states = {
-        "LOGIN": login,
-        "POST": post,
-        "SEARCH": search,
-        "QUESTION": question,
+        "LOGIN": login,  # Login screen
+        "POST": post,  # Making a new post
+        "SEARCH": search,  # Search for posts
+        "QUESTION": question,  # Question view
+        "ANSWER": answer,  # Answer view
+        "PROMPT": prompt_menu
     }
 
-    if current_state == "EXIT":
+    if CURRENT_STATE == "EXIT":
+        print("Exiting program")
+        print(term.clear)
         exit(0)
     else:
-        states[current_state]()
+        states[CURRENT_STATE]()
 
 
 if __name__ == "__main__":
@@ -264,5 +318,7 @@ if __name__ == "__main__":
     else:
         port = int(sys.argv[1])
     db = Database(port)
-    # start
-    login()
+    # Run
+
+    while True:
+        run_state()

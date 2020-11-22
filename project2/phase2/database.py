@@ -18,11 +18,14 @@ def tag_string(tags: List[str]) -> str:
 
 
 def deduplicate_posts(posts: List[dict]) -> List[dict]:
-    output_list = [posts[0]]
+    output_list = []
 
-    for post in posts:
-        if post not in output_list:
-            output_list.append(post)
+    if len(posts) != 0:
+        output_list = [posts[0]]
+
+        for post in posts:
+            if post not in output_list:
+                output_list.append(post)
 
     return output_list
 
@@ -41,6 +44,7 @@ class Database:
         self.vote_collection = database["Votes"]
 
     def get_report(self, user: str):
+        # TODO: Improve this
         questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "1"})
         num_questions = questions.count()
 
