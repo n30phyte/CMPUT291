@@ -153,12 +153,12 @@ class Database:
 
         accepted_answer = None
         accepted_answer_id = ''
-        if question_post is not None:
+        if question_post is not None and "AcceptedAnswerId" in question_post:
             accepted_answer_id = question_post["AcceptedAnswerId"]
             accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
 
         answers = self.post_collection.find(
-            {"$and": [{"Id": {"$ne": accepted_answer_id}}, {"ParentId": question_id}, {"PostTypeId": 2}]}
+            {"$and": [{"Id": {"$ne": accepted_answer_id}}, {"ParentId": question_id}, {"PostTypeId": "2"}]}
         )
 
         return (accepted_answer, list(answers))

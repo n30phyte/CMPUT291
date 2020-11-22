@@ -14,9 +14,6 @@ db = None
 term = Terminal()
 
 
-# todo: "after each action, the user should be able to return to the main menu for further operations
-
-
 def clear_term(title: str):
     print(term.home + term.clear + term.move_y(0))
     print(term.black_on_darkkhaki(term.center(title)))
@@ -130,7 +127,7 @@ def search():
         CURRENT_STATE = "PROMPT"
     else:
         while True:
-            print(results_table.get_string(start = page * 5, end = (page + 1) * 5))
+            print(results_table.get_string(start=page * 5, end=(page + 1) * 5))
 
             print("6. show more")
             print("Select a post by it's order in the table or enter 0 to return to menu")
@@ -201,39 +198,26 @@ def answer_question():
 
 
 def list_answers():
+    clear_term("Answers")
     (accepted_answer, answers) = db.get_answers(question_post["Id"])
-
-    ans_count = 1
 
     all_answers = []
 
     global CURRENT_STATE
 
+    answers_table = PrettyTable()
+    answers_table.field_names = ["Accepted", "Id", "Answer", "Post Date", "Score"]
+
     if accepted_answer is not None:
-        print("\nAccepted Answer:\n")
-
-        print("* {}. {}{}".format(
-            ans_count, accepted_answer["Body"][:80],
-            "..." if len(accepted_answer["Body"]) > 80 else ""))
-
-        print("Post Date: {}".format(accepted_answer["CreationDate"][:10]))
-        print("Score: {}".format(accepted_answer["Score"]))
-
-        ans_count += 1
+        answers_table.add_row(["*", accepted_answer["Id"], accepted_answer["Body"].replace('\n', '')[:80],
+                               accepted_answer["CreationDate"], accepted_answer["Score"]])
 
         all_answers.append(accepted_answer)
 
     if len(answers) != 0:
-        print("\nAnswers:\n")
-
         for ans in answers:
-            print("{}. {}{}".format(ans_count, ans["Body"][:80],
-                                    "..." if len(ans["Body"]) > 80 else ""))
-
-            print("Post Date: {}".format(ans["CreationDate"][:10]))
-            print("Score: {}".format(ans["Score"]))
-            print()
-            ans_count += 1
+            answers_table.add_row(["", ans["Id"], ans["Body"].replace('\n', '')[:80], ans["CreationDate"],
+                                   ans["Score"]])
 
         all_answers.extend(answers)
 
@@ -243,6 +227,8 @@ def list_answers():
         CURRENT_STATE = "QUESTION"
     else:
         selected = False
+
+        print(answers_table)
 
         while not selected:
             selection = int(
@@ -266,13 +252,6 @@ def answer():
 
     clear_term("Answer")
 
-    print("Answer: ")
-
-    answer_table = PrettyTable()
-    answer_table.add_row(["Body", answer_post["Body"]])
-
-    print(term.center(str(answer_table)))
-
     print("Original question:")
     question_table = PrettyTable()
 
@@ -283,6 +262,15 @@ def answer():
     question_table.header = False
 
     print(term.center(str(question_table)))
+
+    print("Answer: ")
+
+    answer_table = PrettyTable()
+    answer_table.add_row(["Body", answer_post["Body"]])
+
+    answer_table.header = False
+
+    print(term.center(str(answer_table)))
 
     print("Select an action:")
     print("1. Vote")
