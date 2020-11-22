@@ -158,9 +158,8 @@ def question():
 
     question_table = PrettyTable()
 
-    question_table.add_row(["Title", question_post["Title"]])
-    question_table.add_row(["Body", question_post["Body"]])
-    question_table.add_row(["Tags", question_post["Tags"]])
+    for key in question_post:
+        question_table.add_row([key, question_post[key]])
 
     question_table.header = False
 
@@ -261,9 +260,8 @@ def answer():
     print("Original question:")
     question_table = PrettyTable()
 
-    question_table.add_row(["Title", question_post["Title"]])
-    question_table.add_row(["Body", question_post["Body"]])
-    question_table.add_row(["Tags", question_post["Tags"]])
+    for key in question_post:
+        question_table.add_row([key, question_post[key]])
 
     question_table.header = False
 
@@ -272,7 +270,8 @@ def answer():
     print("Answer: ")
 
     answer_table = PrettyTable()
-    answer_table.add_row(["Body", answer_post["Body"]])
+    for key in answer_post:
+        answer_table.add_row([key, answer_post[key]])
 
     answer_table.header = False
 
