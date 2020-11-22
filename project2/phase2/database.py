@@ -130,7 +130,7 @@ class Database:
         for keyword in keywords:
             result = self.post_collection.find(
                 {"$and": [
-                    {"PostTypeId": 1},
+                    {"PostTypeId": "1"},
                     {"$or": [
                         {"Body": {
                             "$regex": "{}".format(keyword),

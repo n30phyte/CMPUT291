@@ -116,7 +116,7 @@ def search():
     page = 0
 
     results_table = PrettyTable()
-    results_table.field_names = ["Id", "Title", "Creation Date", "Score", "Answer Count"]
+    results_table.field_names = ["Id", "Title", "Creation Date", "Score", "Answers"]
 
     for post in results:
         results_table.add_row([post["Id"], post["Title"], post["CreationDate"], post["Score"], post["AnswerCount"]])
@@ -126,7 +126,6 @@ def search():
         CURRENT_STATE = "PROMPT"
     else:
         while True:
-
             print(results_table.get_string(start = page * 5, end = (page + 1) * 5))
 
             print("6. show more")
@@ -165,7 +164,7 @@ def question():
 
     question_table.header = False
 
-    print(term.center(question_table))
+    print(term.center(str(question_table)))
 
     print("Select an action:")
     print("1. Answer")
