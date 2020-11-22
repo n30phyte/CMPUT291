@@ -44,23 +44,23 @@ def login():
 def user_report():
     global user_id
     clear_term("User Report for " + user_id)
+    print(term.move_y(int(term.height / 2) - 2))
 
     result = db.get_report(user_id)
 
     print(term.ljust("Number of questions owned (avg score): ", 40))
     print(term.ljust("{} ({})".format(result["num_questions"], result["avg_q_votes"])))
 
-    print(term.move_down())
-
     print(term.ljust("Number of answers owned (avg score): ", 40))
     print(term.ljust("{} ({})".format(result["num_answers"], result["avg_a_votes"])))
 
-    print(term.move_down())
     print(term.ljust("Number of votes by user: ", 40))
     print(term.ljust(result["total_votes"]))
 
-    print(term.move_down(4))
-    input("Press any key to go to main menu")
+    print(term.move_down(2))
+    print("Press any key to go to main menu")
+    with term.cbreak(), term.hidden_cursor():
+        term.inkey()
 
     global CURRENT_STATE
     CURRENT_STATE = "PROMPT"
@@ -156,6 +156,7 @@ def search():
 
 def question():
     clear_term("Question")
+    print(term.move_y(int(term.height / 2) - 2))
 
     question_table = PrettyTable()
 
