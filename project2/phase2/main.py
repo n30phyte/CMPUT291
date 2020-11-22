@@ -232,23 +232,19 @@ def list_answers():
 
         CURRENT_STATE = "QUESTION"
     else:
-        selected = False
-
         print(answers_table)
 
-        while not selected:
-            selection = int(
-                input(
-                    "\nPlease select an answer to read (or 0 to return to menu): "
-                )) - 1
+        while True:
+            selection = int(input("\nPlease select an answer to read (or 0 to return to menu): "))
 
             if selection == 0:
                 CURRENT_STATE = "PROMPT"
-            elif selection < len(all_answers):
+                break
+            elif selection <= len(all_answers):
                 global answer_post
-                answer_post = all_answers[selection]
-                selected = True
+                answer_post = all_answers[selection - 1]
                 CURRENT_STATE = "ANSWER"
+                break
             else:
                 print("Incorrect number. Please try again.")
 
