@@ -77,8 +77,8 @@ class Database:
         post_id = 0
 
         while not found_id:
-            post_id = int(random.randint(1, 999999))
-            if self.post_collection.find_one({"Id": str(post_id)}) is None:
+            post_id = str(random.randint(1, 999999))
+            if self.post_collection.find_one({"Id": post_id}) is None:
                 found_id = True
 
         data["OwnerUserId"] = user
@@ -88,8 +88,7 @@ class Database:
         data["CommentCount"] = 0
         data["ContentLicense"] = "CC BY-SA 2.5"
 
-        document = self.post_collection.insert_one(data)
-        print(document.inserted_id)
+        self.post_collection.insert_one(data)
         return data
 
     def new_question(self, user: str, title: str, body: str, tags: List[str]) -> dict:
@@ -100,10 +99,10 @@ class Database:
             "Title": title,
             "Body": body,
             "Tags": tag_string(tags),
-            "PostTypeId": 1,
+            "PostTypeId": str(1),
             "ViewCount": 0,
             "AnswerCount": 0,
-            "FavouriteCount": 0,
+            "FavoriteCount": 0,
         }
 
         return self.new_post(user, question)
@@ -112,7 +111,7 @@ class Database:
 
         answer = {
             "Body": body,
-            "PostTypeId": 2,
+            "PostTypeId": str(2),
             "ParentId": question_id,
         }
 

@@ -126,6 +126,7 @@ def search():
     else:
         while True:
             print(results_table.get_string(start=page * 5, end=(page + 1) * 5))
+            print(term.move_down())
 
             print("6. show more")
             print("Select a post by it's order in the table or enter 0 to return to menu")
