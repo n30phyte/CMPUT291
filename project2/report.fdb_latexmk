@@ -1,8 +1,8 @@
 # Fdb version 3
-["pdflatex"] 1606021089 "/home/shadow/CMPUT291/project2/report.tex" "/home/shadow/CMPUT291/project2/report.pdf" "report" 1606021090
+["pdflatex"] 1606175770 "/home/shadow/CMPUT291/project2/report.tex" "/home/shadow/CMPUT291/project2/report.pdf" "report" 1606175771
   "/home/shadow/.texlive2020/texmf-var/web2c/pdftex/pdflatex.fmt" 1605412047 2223147 ae641928ffd9b15f5defeaaef2415796 ""
-  "/home/shadow/CMPUT291/project2/report.aux" 1606021090 515 391820597f323453583ecfbb8db7b56e ""
-  "/home/shadow/CMPUT291/project2/report.tex" 1606021089 6260 503f528ccfa562a958ed727a74aaeae3 ""
+  "/home/shadow/CMPUT291/project2/report.aux" 1606175771 515 391820597f323453583ecfbb8db7b56e ""
+  "/home/shadow/CMPUT291/project2/report.tex" 1606175770 7046 7950d1d7588ea956a4e424e108429817 ""
   "/usr/share/texlive/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1136849721 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/map/pdftex/updmap/pdftex.map" 1584924908 4811896 62a4b3942352306ffbbdb4a4844ec348 ""
@@ -40,11 +40,11 @@
   "/usr/share/texlive/texmf-dist/tex/latex/nag/nag.sty" 1322955403 14182 062a686afa2d58447e49360be4df373b ""
   "/usr/share/texlive/texmf-dist/tex/latex/tools/indentfirst.sty" 1580683321 1619 d4cd7231755dd1dfa89af8ceddfb0e4d ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1603899357 39615 4ca7b2be4e89b50848d4f0b4d97130bb ""
-  "report.aux" 1606021090 515 391820597f323453583ecfbb8db7b56e "pdflatex"
-  "report.tex" 1606021089 6260 503f528ccfa562a958ed727a74aaeae3 ""
+  "report.aux" 1606175771 515 391820597f323453583ecfbb8db7b56e "pdflatex"
+  "report.tex" 1606175770 7046 7950d1d7588ea956a4e424e108429817 ""
   (generated)
   "report.aux"
-  "report.log"
-  "/home/shadow/CMPUT291/project2/report.log"
   "report.pdf"
   "/home/shadow/CMPUT291/project2/report.pdf"
+  "report.log"
+  "/home/shadow/CMPUT291/project2/report.log"

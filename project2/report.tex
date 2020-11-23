@@ -17,17 +17,17 @@
 % general overview of system /w small user guide
 % high level introduction; may include diagram showing flow of data between diff components
 
+This program utilizes an online MongoDB NoSQL database to store data for posts, votes, and tags. The user interacts with the system by selecting options displayed on screen in each state. 
 
+Upon start up, the user may choose to enter a numeric user id. If the user id is valid (contains only numbers), a user report is generated which outlines the number of questions and answers the given user has posted, along with their average scores, then displays the total votes the user has made. Otherwise if a user id was not provided or if the user id is invalid, the program proceeds to the main menu.
 
-% This program utilizes a local SQLite database to provide the user a question-answer forum to interact with. Interactions are done via selecting provided options in each state.
+In the main menu, the user has the option to post a question, search for questions, or exit the program. In posting a question, the user is asked to enter a title, body, and tags for the post. Upon finishing, the user is taken to view the newly posted question with all its newly generated data that is stored in the database. From there, several options are presented to the user: answer the question, list all answers to the question, vote on the question, and return to the main menu. Answering the question will have an extra line appear to prompt the user to write an answer to the question, to which once the user is finished, will take the user to view the answer inidivudally. The answer view shows the original question of which the answer is responding to, along with the answer itself as well as two actions the user can take: vote or return to main menu.
 
-% Upon startup, the user may choose to login, sign up, or exit the program. After logging in or signing up, the user will be brought to the main menu where they can create a new question post, search posts, or log out of their account (which brings them back to the first screen). Creating a new question involves setting a title and body, after which the user is taken to the post view of their question where they can make post actions.
+When the user selects list answers from the question screen, a new table will be displayed on a new screen that shows the accepted answer first (if any exists), and then other answers to the question. The user can select any of the answers listed by their number and go to view the answer individually.
 
-% These post actions vary depending on if the user is privileged, but all users have the option to answer the question if it is a question, and to vote the question if they have not voted it already. Privileged users have further actions of marking an answer as accepted if the post is an answer, give a badge to the user if they have not given the badge they chose to give already today, add a tag to the post, and edit the title and/or body of the post.
+When the user selects the vote action on a question or answer in focus, the score of the post wil increment by 1 if the user is logged in and has not previously voted on the post already. Users who did not provide a user id at the login screen are free to vote without constraint on the post.
 
-% If the user makes a mistake in action choice or data entry, the program reminds the user that they made an error and allow a retry. When a user makes a failed attempt at login more than 3 times, the counter is reset and the user is brought back to the initial screen to login, create a new account, or log out. A new user, however, has any amount of tries to register a new account if their chosen uid is already taken.
-
-% The score is the number of votes a post as received. When entering a password during login or registration, a user will not be able to see their input but it is received nonetheless.
+If the user chooses to search questions, they will be first prompted to enter keywords delimited by spaces. Upon pressing enter, a table of search results will be displayed in pages of 5. The user can select any of the questions by their numbers in the results or select the see more option to display the next page of search results. The user may also choose to return to menu on the search results page. 
 
 \section{Running Instructions}
 
