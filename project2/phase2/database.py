@@ -44,32 +44,40 @@ class Database:
         self.vote_collection = database["Votes"]
 
     def get_report(self, user: str):
-        # TODO: Improve this
-        questions = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "1"})
-        num_questions = questions.count()
-        avg_question_votes = 0
-        if num_questions != 0:
-            for q in questions:
-                # find number of votes and add to a list
-                avg_question_votes += self.vote_collection.count_documents({"PostId": q["Id"]})
-            avg_question_votes /= num_questions
+        question_pipeline = [
+            {"$match": {"$and": [{"PostTypeId": "1"}, {"OwnerUserId": user}]}},
+            {
+                "$group": {
+                    "_id": "null",
+                    "num_questions": {"$sum": 1},
+                    "question_score_avg": {"$avg": "$Score"},
+                }
+            },
+        ]
 
-        answers = self.post_collection.find({"OwnerUserId": user, "PostTypeId": "2"})
-        num_answers = questions.count()
-        avg_answer_votes = 0
-        if num_answers != 0:
-            for a in answers:
-                avg_answer_votes += self.vote_collection.count_documents({"PostId": a["Id"]})
-            avg_answer_votes = avg_answer_votes / num_answers
+        question_stats = list(self.post_collection.aggregate(question_pipeline))[0]
+
+        answer_pipeline = [
+            {"$match": {"$and": [{"PostTypeId": "2"}, {"OwnerUserId": user}]}},
+            {
+                "$group": {
+                    "_id": "null",
+                    "num_answers": {"$sum": 1},
+                    "answer_score_avg": {"$avg": "$Score"},
+                }
+            },
+        ]
+
+        answer_stats = list(self.post_collection.aggregate(answer_pipeline))[0]
 
         total_votes = self.vote_collection.count_documents({"UserId": user})
 
         return {
-            "num_questions": num_questions,
-            "avg_q_votes": avg_question_votes,
-            "num_answers": num_answers,
-            "avg_a_votes": avg_answer_votes,
-            "total_votes": total_votes
+            "num_questions": question_stats["num_questions"],
+            "avg_q_votes": question_stats["question_score_avg"],
+            "num_answers": answer_stats["num_answers"],
+            "avg_a_votes": answer_stats["answer_score_avg"],
+            "total_votes": total_votes,
         }
 
     def new_post(self, user: str, data: dict) -> dict:
@@ -115,16 +123,24 @@ class Database:
             "ParentId": question_id,
         }
 
-        self.post_collection.update_one({"Id": question_id}, {"$inc": {"AnswerCount": 1}})
+        self.post_collection.update_one(
+            {"Id": question_id}, {"$inc": {"AnswerCount": 1}}
+        )
 
         return self.new_post(user, answer)
 
     def search_question(self, keywords):
 
-        results = list(self.post_collection.find(
-            {"$and": [
-                {"PostTypeId": "1"},
-                {"$text": {"$search": "{}".format(keywords)}}, ]}))
+        results = list(
+            self.post_collection.find(
+                {
+                    "$and": [
+                        {"PostTypeId": "1"},
+                        {"$text": {"$search": "{}".format(keywords)}},
+                    ]
+                }
+            )
+        )
 
         return results
 
@@ -138,13 +154,19 @@ class Database:
         )
 
         accepted_answer = None
-        accepted_answer_id = ''
+        accepted_answer_id = ""
         if question_post is not None and "AcceptedAnswerId" in question_post:
             accepted_answer_id = question_post["AcceptedAnswerId"]
             accepted_answer = self.post_collection.find_one({"Id": accepted_answer_id})
 
         answers = self.post_collection.find(
-            {"$and": [{"Id": {"$ne": accepted_answer_id}}, {"ParentId": question_id}, {"PostTypeId": "2"}]}
+            {
+                "$and": [
+                    {"Id": {"$ne": accepted_answer_id}},
+                    {"ParentId": question_id},
+                    {"PostTypeId": "2"},
+                ]
+            }
         )
 
         return accepted_answer, list(answers)
@@ -152,7 +174,7 @@ class Database:
     def vote(self, post_id: str, user_id: str) -> bool:
         # if user already voted on post, do not vote and return false
         if user_id and self.vote_collection.find_one(
-                {"PostId": post_id, "UserId": user_id}
+            {"PostId": post_id, "UserId": user_id}
         ):
             return False
 
