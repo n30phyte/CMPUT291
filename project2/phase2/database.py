@@ -119,27 +119,14 @@ class Database:
 
         return self.new_post(user, answer)
 
-    def search_question(self, keywords: List[str]):
-        results = []
+    def search_question(self, keywords):
 
-        for keyword in keywords:
-            result = self.post_collection.find(
-                {"$and": [
-                    {"PostTypeId": "1"},
-                    {"$or": [
-                        {"Body": {
-                            "$regex": "{}".format(keyword),
-                            "$options": "i", }},
-                        {"Tags": {
-                            "$regex": "{}".format(keyword),
-                            "$options": "i", }},
-                        {"Title": {
-                            "$regex": "{}".format(keyword),
-                            "$options": "i", }}, ]}, ]})
+        results = list(self.post_collection.find(
+            {"$and": [
+                {"PostTypeId": "1"},
+                {"$text": {"$search": "{}".format(keywords)}}, ]}))
 
-            results.extend(list(result))
-
-        return deduplicate_posts(results)
+        return results
 
     def visit_question(self, question_id: str):
         # update value in collection

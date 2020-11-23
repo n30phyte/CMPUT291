@@ -108,7 +108,7 @@ def search():
 
     clear_term("Search for Question")
 
-    keywords = input("search keywords: ").split()
+    keywords = input("search keywords: ")
 
     results = list(db.search_question(keywords))
     page = 0
