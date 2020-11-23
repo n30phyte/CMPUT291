@@ -22,7 +22,6 @@ def clear_term(title: str):
 def login():
     clear_term("Login")
 
-    print(term.move_y(int(term.height / 2)))
     uid = input("User ID: ")
 
     # verify uid is all numeric
@@ -30,11 +29,12 @@ def login():
         global user_id
         user_id = uid
         user_report()
-
     elif not uid:
         print("No user ID entered. Proceeding to Main Menu")
+        input("Press enter key to go to main menu")
     else:
         print("Error: User ID must be numeric. Assuming null")
+        input("Press enter key to go to main menu")
 
     global CURRENT_STATE
     CURRENT_STATE = "PROMPT"
@@ -43,7 +43,6 @@ def login():
 def user_report():
     global user_id
     clear_term("User Report for " + user_id)
-    print(term.move_y(int(term.height / 2) - 2))
 
     result = db.get_report(user_id)
 
@@ -66,7 +65,6 @@ def user_report():
 def prompt_menu():
     clear_term("Main Menu")
 
-    print(term.move_y(int(term.height / 2) - 2))
     print("Select an action:")
     print("1. Post a question")
     print("2. Search for questions")
@@ -83,12 +81,11 @@ def prompt_menu():
         CURRENT_STATE = "EXIT"
     else:
         print("error: please choose one of the actions")
+        input("Press enter key to continue")
 
 
 def post():
     clear_term("Post a new question")
-
-    print(term.move_y(int(term.height / 2) - 2))
 
     title = input("Title: ")
     print(term.move_down)
@@ -140,6 +137,7 @@ def search():
 
                 question_post = results[(int(action) - 1) + (5 * page)]
                 db.visit_question(question_post["Id"])
+                question_post["ViewCount"] += 1
 
                 CURRENT_STATE = "QUESTION"
                 break
@@ -147,15 +145,16 @@ def search():
                 # show more results
                 if len(results) - 1 == page:
                     print("no more results")
+                    input("Press enter key to continue")
                 else:
                     page += 1
             else:
                 print("error: please choose one of the actions")
+                input("Press enter key to continue")
 
 
 def question():
     clear_term("Question")
-    print(term.move_y(int(term.height / 2) - 2))
 
     question_table = PrettyTable()
 
@@ -179,17 +178,18 @@ def question():
     elif action == "3":
         result = db.vote(question_post["Id"], user_id)
         if result:
+            question_post["Score"] += 1
             print("Vote successful!")
             input("Press enter key to continue")
         else:
             print("You already voted on this!")
             input("Press enter key to continue")
-
     elif action == "4":
         global CURRENT_STATE
         CURRENT_STATE = "PROMPT"
     else:
         print("error: please choose one of the actions")
+        input("Press enter key to go to main menu")
 
 
 def answer_question():
@@ -229,7 +229,7 @@ def list_answers():
 
     if len(all_answers) == 0:
         print("No Answers. Going back to Question view.")
-
+        input("Press enter key to continue")
         CURRENT_STATE = "QUESTION"
     else:
         print(answers_table)
@@ -247,6 +247,7 @@ def list_answers():
                 break
             else:
                 print("Incorrect number. Please try again.")
+                input("Press enter key to continue")
 
 
 def answer():
@@ -279,11 +280,20 @@ def answer():
     print("2. Go back to menu")
     action = input()
     if action == "1":
-        db.vote(answer_post["Id"], user_id)
+        result = db.vote(answer_post["Id"], user_id)
+        if result:
+            answer_post["Score"] += 1
+            print(answer_post)
+            print("Vote successful!")
+            input("Press enter key to continue")
+        else:
+            print("You already voted on this!")
+            input("Press enter key to continue")
     elif action == "2":
         CURRENT_STATE = "PROMPT"
     else:
         print("error: please choose one of the actions")
+        input("Press enter key to continue")
 
 
 def run_state():
