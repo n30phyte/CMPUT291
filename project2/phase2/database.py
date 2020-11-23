@@ -139,7 +139,7 @@ class Database:
                         {"$text": {"$search": "{}".format(keywords)}},
                     ]
                 }
-            )
+            ).sort("_id")
         )
 
         return results
