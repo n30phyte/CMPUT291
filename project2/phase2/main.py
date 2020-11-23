@@ -111,10 +111,13 @@ def search():
     page = 0
 
     results_table = PrettyTable()
-    results_table.field_names = ["Id", "Title", "Creation Date", "Score", "Answers"]
+    results_table.field_names = ["no.", "Id", "Title", "Creation Date", "Score", "Answers"]
 
+    count = 0
     for post in results:
-        results_table.add_row([post["Id"], post["Title"], post["CreationDate"], post["Score"], post["AnswerCount"]])
+        results_table.add_row(
+            [(count % 5) + 1, post["Id"], post["Title"], post["CreationDate"], post["Score"], post["AnswerCount"]])
+        count += 1
 
     if len(results) == 0:
         print("No results found.")
