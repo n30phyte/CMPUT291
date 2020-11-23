@@ -200,7 +200,7 @@ def question():
         CURRENT_STATE = "PROMPT"
     else:
         print("error: please choose one of the actions")
-        input("Press enter key to go to main menu")
+        input("Press enter key to continue")
 
 
 def answer_question():
@@ -223,7 +223,7 @@ def list_answers():
     global CURRENT_STATE
 
     answers_table = PrettyTable()
-    answers_table.field_names = ["no.", "Accepted", "Id", "Answer", "Post Date", "Score"]
+    answers_table.field_names = ["# ", "Accepted", "Id", "Answer", "Post Date", "Score"]
     answers_table._max_width = {"Answer": 80}
     answers_table._max_table_width = term.width - 10
     answers_table.hrules = prettytable.ALL
@@ -310,7 +310,6 @@ def answer():
         result = db.vote(answer_post["Id"], user_id)
         if result:
             answer_post["Score"] += 1
-            print(answer_post)
             print("Vote successful!")
             input("Press enter key to continue")
         else:

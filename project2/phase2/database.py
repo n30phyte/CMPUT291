@@ -89,7 +89,8 @@ class Database:
             if self.post_collection.find_one({"Id": post_id}) is None:
                 found_id = True
 
-        data["OwnerUserId"] = user
+        if user:
+            data["OwnerUserId"] = user
         data["Id"] = post_id
         data["CreationDate"] = date_today()
         data["Score"] = 0
