@@ -1,5 +1,7 @@
 import sys
 
+import prettytable
+
 from database import Database
 from prettytable import PrettyTable
 from blessed import Terminal
@@ -91,7 +93,7 @@ def post():
     print(term.move_down)
     body = input("body: ")
     print(term.move_down)
-    tags = input("tags: ").split()
+    tags = input("tags: ").lower().split()
 
     # create post and go to post
     global question_post, CURRENT_STATE
@@ -112,6 +114,9 @@ def search():
 
     results_table = PrettyTable()
     results_table.field_names = ["no.", "Id", "Title", "Creation Date", "Score", "Answers"]
+    results_table._max_width = {"Title": 80}
+    results_table._max_table_width = term.width
+    results_table.hrules = prettytable.ALL
 
     count = 0
     for post in results:
@@ -135,9 +140,9 @@ def search():
             if action == "0":
                 CURRENT_STATE = "PROMPT"
                 break
-
+            elif action == "":
+                pass
             elif int(action) <= min(len(results), 5):
-
                 question_post = results[(int(action) - 1) + (5 * page)]
                 db.visit_question(question_post["Id"])
                 question_post["ViewCount"] += 1
@@ -164,7 +169,10 @@ def question():
     for key in question_post:
         question_table.add_row([key, question_post[key]])
 
+    question_table.field_names = ["field", "data"]
     question_table.header = False
+    question_table._max_table_width = term.width
+    question_table._max_width = {"data": 80}
 
     print(term.center(str(question_table)))
 
@@ -215,18 +223,28 @@ def list_answers():
     global CURRENT_STATE
 
     answers_table = PrettyTable()
-    answers_table.field_names = ["Accepted", "Id", "Answer", "Post Date", "Score"]
+    answers_table.field_names = ["no.", "Accepted", "Id", "Answer", "Post Date", "Score"]
+    answers_table._max_width = {"Answer": 80}
+    answers_table._max_table_width = term.width - 10
+    answers_table.hrules = prettytable.ALL
+
+    count = 0
 
     if accepted_answer is not None:
-        answers_table.add_row(["*", accepted_answer["Id"], accepted_answer["Body"].replace('\n', '')[:80],
-                               accepted_answer["CreationDate"], accepted_answer["Score"]])
+        answers_table.add_row(
+            [(count % 5) + 1, "*", accepted_answer["Id"], accepted_answer["Body"].replace('\n', '')[:80],
+             accepted_answer["CreationDate"], accepted_answer["Score"]])
 
         all_answers.append(accepted_answer)
+        count += 1
 
     if len(answers) != 0:
         for ans in answers:
-            answers_table.add_row(["", ans["Id"], ans["Body"].replace('\n', '')[:80], ans["CreationDate"],
-                                   ans["Score"]])
+            answers_table.add_row(
+                [(count % 5) + 1, "", ans["Id"], ans["Body"].replace('\n', '')[:80], ans["CreationDate"],
+                 ans["Score"]])
+
+            count += 1
 
         all_answers.extend(answers)
 
@@ -264,19 +282,25 @@ def answer():
     for key in question_post:
         question_table.add_row([key, question_post[key]])
 
+    question_table.field_names = ["field", "data"]
     question_table.header = False
+    question_table._max_table_width = term.width
+    question_table._max_width = {"data": 80}
 
     print(term.center(str(question_table)))
 
-    print("Answer: ")
+    print("\nAnswer: ")
 
-    answer_table = PrettyTable()
+    answers_table = PrettyTable()
     for key in answer_post:
-        answer_table.add_row([key, answer_post[key]])
+        answers_table.add_row([key, answer_post[key]])
 
-    answer_table.header = False
+    answers_table.field_names = ["field", "data"]
+    answers_table.header = False
+    answers_table._max_table_width = term.width
+    answers_table._max_width = {"data": 80}
 
-    print(term.center(str(answer_table)))
+    print(term.center(str(answers_table)))
 
     print("Select an action:")
     print("1. Vote")
