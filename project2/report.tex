@@ -56,7 +56,7 @@ When creating a new post, each tag must be seperated by a space character. Dupli
 % detailed design of software w/ focus on components required to deliver major functions of application
 % describe reponsibility + interface of each primary function/class + structure + relationships among them
 
-The first phase of the project is written as a simple python script as it's main job is to import the data and no processing. Titles, bodies and tags of posts were indexed as text to improve search speeds at the \nth{2} phase.
+The first phase of the project is written as a simple python script as it's main job is to import the data and no processing. Titles, bodies and tags of posts were indexed as text to improve search speeds at the \nth{2} phase. Each collection was built in a different thread, as we found that this improved speed by about 20\% with no changes to code.
 
 In the \nth{2} phase, the user interface and database access functions are split into two files. The main file performs user input handling and displaying the user interface, also navigation between the menus. We rely on \verb|blessed|, a curses library for python to handle clearing the terminal, positioning cursors and adding menu titles. We also use \verb|PrettyTable| to display data. User interface flow is handled by a simple switch/case instead of a heavyweight state machine as we did not require tracking of previous state or anything complicated, and just a list of screens to show. Each state calls into the \verb|Database| class to perform actions as requested by the user.
 
