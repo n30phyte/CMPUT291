@@ -36,12 +36,17 @@ To install the dependencies of this program, run the following:
 
 \verb|pip3 install -r requirements.txt|
 
+Start MongoDB running with:
+
+\verb|mongod --port [port number] --dbpath [path]|
+
 To run the program, the following commands can be used:
 
-\verb|python3.5 phase1.py|
+\verb|python3.5 phase1.py [port number]|
 
-\verb|python3.5 main.py|
+\verb|python3.5 main.py [port number]|
 
+Port number is optional. A default of 27017 is assumed.
 
 Main menu will appear, and user can choose to input their IDs or otherwise.
 
