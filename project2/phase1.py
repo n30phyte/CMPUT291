@@ -6,25 +6,25 @@ if __name__ == "__main__":
     port = 27017
     if len(sys.argv) == 2:
         port = int(sys.argv[1])
-    client = pymongo.MongoClient('localhost', port)
-    db = client['291db']
+    client = pymongo.MongoClient("localhost", port)
+    db = client["291db"]
 
     collection_list = db.list_collection_names()
 
     # Check for existence and delete if exists
-    if ("Posts" in collection_list):
+    if "Posts" in collection_list:
         post_collection = db.get_collection("Posts")
         post_collection.drop()
 
     post_collection = db.create_collection("Posts")
 
-    if ("Tags" in collection_list):
+    if "Tags" in collection_list:
         tag_collection = db.get_collection("Tags")
         tag_collection.drop()
 
     tag_collection = db.create_collection("Tags")
 
-    if ("Votes" in collection_list):
+    if "Votes" in collection_list:
         vote_collection = db.get_collection("Votes")
         vote_collection.drop()
 
@@ -38,10 +38,10 @@ if __name__ == "__main__":
         post_collection.insert_many(posts_data)
 
         post_collection.create_index("Id", unique=True, background=True)
-        post_collection.create_index([("Body", pymongo.TEXT),
-                                      ("Title", pymongo.TEXT),
-                                      ("Tags", pymongo.TEXT)],
-                                     background=True)
+        post_collection.create_index(
+            [("Body", pymongo.TEXT), ("Title", pymongo.TEXT), ("Tags", pymongo.TEXT)],
+            background=True,
+        )
 
     with open("Tags.json") as tags:
         tags_data = json.load(tags)

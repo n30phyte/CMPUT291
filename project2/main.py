@@ -1,10 +1,11 @@
 import sys
 
+from blessed import Terminal
+
 import prettytable
+from prettytable import PrettyTable
 
 from database import Database
-from prettytable import PrettyTable
-from blessed import Terminal
 
 CURRENT_STATE = "LOGIN"
 
@@ -113,15 +114,30 @@ def search():
     page = 0
 
     results_table = PrettyTable()
-    results_table.field_names = ["no.", "Id", "Title", "Creation Date", "Score", "Answers"]
+    results_table.field_names = [
+        "no.",
+        "Id",
+        "Title",
+        "Creation Date",
+        "Score",
+        "Answers",
+    ]
     results_table._max_width = {"Title": 80}
     results_table._max_table_width = term.width
     results_table.hrules = prettytable.ALL
 
     count = 0
-    for post in results:
+    for post_result in results:
         results_table.add_row(
-            [(count % 5) + 1, post["Id"], post["Title"], post["CreationDate"], post["Score"], post["AnswerCount"]])
+            [
+                (count % 5) + 1,
+                post_result["Id"],
+                post_result["Title"],
+                post_result["CreationDate"],
+                post_result["Score"],
+                post_result["AnswerCount"],
+            ]
+        )
         count += 1
 
     if len(results) == 0:
@@ -134,7 +150,9 @@ def search():
             print(term.move_down())
 
             print("6. show more")
-            print("Select a post by it's order in the table or enter 0 to return to menu")
+            print(
+                "Select a post by it's order in the table or enter 0 to return to menu"
+            )
             action = input()
 
             if action == "0":
@@ -232,8 +250,15 @@ def list_answers():
 
     if accepted_answer is not None:
         answers_table.add_row(
-            [(count % 5) + 1, "*", accepted_answer["Id"], accepted_answer["Body"].replace('\n', '')[:80],
-             accepted_answer["CreationDate"], accepted_answer["Score"]])
+            [
+                (count % 5) + 1,
+                "*",
+                accepted_answer["Id"],
+                accepted_answer["Body"].replace("\n", "")[:80],
+                accepted_answer["CreationDate"],
+                accepted_answer["Score"],
+            ]
+        )
 
         all_answers.append(accepted_answer)
         count += 1
@@ -241,8 +266,15 @@ def list_answers():
     if len(answers) != 0:
         for ans in answers:
             answers_table.add_row(
-                [(count % 5) + 1, "", ans["Id"], ans["Body"].replace('\n', '')[:80], ans["CreationDate"],
-                 ans["Score"]])
+                [
+                    (count % 5) + 1,
+                    "",
+                    ans["Id"],
+                    ans["Body"].replace("\n", "")[:80],
+                    ans["CreationDate"],
+                    ans["Score"],
+                ]
+            )
 
             count += 1
 
@@ -256,7 +288,9 @@ def list_answers():
         print(answers_table)
 
         while True:
-            selection = int(input("\nPlease select an answer to read (or 0 to return to menu): "))
+            selection = int(
+                input("\nPlease select an answer to read (or 0 to return to menu): ")
+            )
 
             if selection == 0:
                 CURRENT_STATE = "PROMPT"
@@ -329,7 +363,7 @@ def run_state():
         "SEARCH": search,  # Search for posts
         "QUESTION": question,  # Question view
         "ANSWER": answer,  # Answer view
-        "PROMPT": prompt_menu
+        "PROMPT": prompt_menu,
     }
 
     if CURRENT_STATE == "EXIT":
@@ -342,10 +376,10 @@ def run_state():
 
 if __name__ == "__main__":
     # set up db stuff
-    if len(sys.argv) == 1:
-        port = 27017
-    else:
+    port = 27017
+    if len(sys.argv) == 2:
         port = int(sys.argv[1])
+
     db = Database(port)
     # Run
 
