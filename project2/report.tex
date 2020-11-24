@@ -45,7 +45,7 @@ To run the program, the following commands can be used:
 
 Main menu will appear, and user can choose to input their IDs or otherwise.
 
-When creating a new post, each tag must be seperated by a space character
+When creating a new post, each tag must be seperated by a space character. Duplicate tags will be handled by the system.
 
 \section{Design}
 % detailed design of software w/ focus on components required to deliver major functions of application
@@ -55,25 +55,23 @@ The first phase of the project is written as a simple python script as it's main
 
 In the \nth{2} phase, the user interface and database access functions are split into two files. The main file performs user input handling and displaying the user interface, also navigation between the menus. We rely on \verb|blessed|, a curses library for python to handle clearing the terminal, positioning cursors and adding menu titles. We also use \verb|PrettyTable| to display data. User interface flow is handled by a simple switch/case instead of a heavyweight state machine as we did not require tracking of previous state or anything complicated, and just a list of screens to show. Each state calls into the \verb|Database| class to perform actions as requested by the user.
 
-As previously mentioned, we use a second file. In this second file, we have the \verb|Database| class and related functions such as a function that generates a date string that follows the required format and another that converts a list of tags into the string as stored in the database. The \verb|PyMongo| library was chosen to access the database as it is the official library provided by MongoDB.\@ Both normal queries and aggregation were used in conjunction as required to keep actions performant. As we were not as familiar with NoSQL as we are with SQL, the format of the queries are not consistent (e.g.\ implicit vs explicit \verb|"$and"| queries)
+As previously mentioned, we use a second file. In this second file, we have the \verb|Database| class and related functions such as a function that generates a date string that follows the required format and another that converts a list of tags into the string as stored in the database. The \verb|PyMongo| library was chosen to access the database as it is the official library provided by MongoDB.\@ Both normal queries and aggregation were used in conjunction as required to keep actions performant. As we were not as familiar with NoSQL as we are with SQL, the format of the queries were not consistent (e.g.\ implicit vs explicit \verb|"$and"| queries), however most of these inconsistencies should be purely cosmetic and should not affect program performance.
 
 
 \section{Testing Strategy}
 % discuss general strategy for testing w/ scenarios tested + coverage of test cases
 
-% Since each component of the system was developed separately and at different times with the \verb|Database| module coming first, it has a suite of unit tests which currently has about 70\% coverage of the file.
+The entire program was tested manually by following the assignment specification and grading rubric, checking to see what was missing in each state and implementing missing functionality as found.
 
-% The \verb|Database| module was mostly developed with Test Driven Development as the main process, which allowed progress to be tracked, and code to be tested as it was written. The output of functions were compared with similar but not identical SQL commands directly to the database to verify that each function ran as expected. Both failure and success situations were tested in test suite, making sure that the specification was provided was followed.
+Most initial bugs found were due to lack of errors in NoSQL, where queries don't fail but simply return no results instead. Subsequent bugs were mostly interface issues as getting a command line interfaces right isn't something that we have much experience with.
 
-% Integration testing was done manually, by testing each state and part of the interface by hand as setting up automated testing for this part would have been overkill.
-
-% Most bugs found were logic errors from processing the results from SQL, but a few were due to python's weak typing where things were not returned, or certain things were unexpectedly of the \verb|None| type.
+As clarifications about performance were released, each part was tested with a stopwatch on our local machines to estimate the amount of time it took, and we found that slower parts were mostly due to our inexperience with NoSQL, and we improved our queries to speed up execution greatly.
 
 \section{Groupwork Breakdown}
 % list breakdown of work items among partners; time spent (estimate) + progress made by each partner
 % document assuptions made/limitations of code
 
-The group coordinated through WhatsApp direct message, and code was hosted in a private GitHub repository.
+The group coordinated through private messaging, and code was hosted in a private GitHub repository.
 
 \begin{itemize}
     \item Cynthia
@@ -86,10 +84,15 @@ The group coordinated through WhatsApp direct message, and code was hosted in a 
           \end{itemize}
     \item Michael
           \begin{itemize}
-              \item Time Estimate: 15 hours
-              \item Wrote all of \verb|database.py|
-              \item Unit tests in \verb|tests.py| and corresponding test data
+              \item Time Estimate: 12 hours
+              \item Wrote most of \verb|database.py|
+                    \begin{itemize}
+                        \item \verb|visit_question()| was written by Cynthia
+                        \item \verb|vote()| was completed by Cynthia
+                        \item \verb|get_report()| was initially written by Cynthia then improved by me
+                    \end{itemize}
               \item Implemented the list answers and some of search states
+              \item Did initial implementation of \verb|PrettyTable| printing
               \item Co-authored the report document
           \end{itemize}
 \end{itemize}

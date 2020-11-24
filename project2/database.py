@@ -208,7 +208,6 @@ class Database:
     def insert_tags(self, tags: List[str]):
 
         for tag in tags:
-
             if self.tag_collection.find_one({"TagName": tag}) is None:
                 found_id = False
                 tag_id = 0
