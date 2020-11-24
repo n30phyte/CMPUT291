@@ -102,6 +102,8 @@ class Database:
 
     def new_question(self, user: str, title: str, body: str, tags: List[str]) -> dict:
 
+        tags = set(tags)
+
         self.insert_tags(tags)
 
         question = {
