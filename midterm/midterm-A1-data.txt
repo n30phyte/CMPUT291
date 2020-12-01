@@ -1,0 +1,50 @@
+-- Let's drop the tables in case they exist
+drop table if exists rents;
+drop table if exists cars;
+drop table if exists customers;
+
+PRAGMA foreign_keys = ON;
+
+create table customers (
+  cid 		char(4),
+  name		text,
+  age 		int,
+  primary key (cid)
+);
+create table cars (
+  vno		char(4),
+  make		text,
+  model		text,
+  color		text,
+  primary key (vno)
+);
+create table rents (
+  cid		char(4),
+  vno		char(4),
+  rentDate	date,
+  primary key (cid,vno,rentDate),
+  foreign key (cid) references customers,
+  foreign key (vno) references cars
+);
+
+insert into customers values ('c10','John',20);
+insert into customers values ('c20','Davood',40);
+insert into customers values ('c30','Mary',30);
+insert into customers values ('c40','Joan',22);
+insert into customers values ('c50','Graham',65);
+
+insert into cars values ('v1','Mercedes','SLS AMG','white');
+insert into cars values ('v2','Mercedes','GLK','black');
+insert into cars values ('v3','Porsche','911','red');
+insert into cars values ('v4','Honda','Civic','red');
+insert into cars values ('v5','BMW','507','white');
+insert into cars values ('v6','BMW','M3','white');
+
+insert into rents values ('c20','v1','2020-09-08');
+insert into rents values ('c20','v2','2019-05-01');
+insert into rents values ('c20','v4','2020-10-12');
+insert into rents values ('c50','v1','2018-03-01');
+insert into rents values ('c50','v2','2020-02-06');
+insert into rents values ('c30','v5','2020-04-06');
+insert into rents values ('c30','v6','2020-08-02');
+insert into rents values ('c40','v3','2019-06-22');

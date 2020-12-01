@@ -1,0 +1,66 @@
+-- Fill your name and CCID, and add your answers to each question.
+-- Michael Kwok (mkwok1)
+-- Add your SQL queries for each question here.
+-- Q1
+SELECT
+    rents.vno
+FROM
+    customers,
+    rents
+WHERE
+    customers.age >= 60
+    AND (customers.cid = rents.cid);
+
+-- Q2
+SELECT
+    cars.color,
+    AVG(customers.age) AS average
+FROM
+    customers,
+    rents,
+    cars
+WHERE
+    (customers.cid = rents.cid)
+    AND (rents.vno = cars.vno)
+GROUP BY
+    cars.color;
+
+-- Q3
+SELECT
+    *
+FROM
+    rents
+WHERE
+    rents.cid IN (
+        SELECT
+            customers.cid
+        FROM
+            customers,
+            rents
+        WHERE
+            customers.cid = rents.cid
+        GROUP BY
+            customers.cid
+        HAVING
+            COUNT(rents.vno) >= 3
+    );
+
+-- Q4
+SELECT
+    distinct customers.cid as cid,
+    customers.name as name
+FROM
+    customers,
+    rents,
+    cars
+WHERE
+    (customers.cid = rents.cid)
+    AND (rents.vno = cars.vno)
+    AND cars.vno NOT IN(
+        SELECT
+            vno
+        FROM
+            cars
+        WHERE
+            cars.make != 'BMW'
+    );

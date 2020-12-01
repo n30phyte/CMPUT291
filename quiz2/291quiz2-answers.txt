@@ -1,0 +1,22 @@
+-- Michael Kwok (mkwok1)
+-- Q1 Find branches where someone from Edmonton has deposits in.
+SELECT
+    DISTINCT bname
+FROM
+    deposit,
+    customer
+WHERE
+    customer.city = 'Edmonton'
+    AND customer.cname = deposit.cname;
+
+-- Q2 For every branch in Edmonton, return the branch name and the average deposit balance.
+SELECT
+    deposit.bname,
+    AVG(balance)
+FROM
+    deposit,
+    branch
+WHERE
+    branch.city = 'Edmonton'
+GROUP BY
+    deposit.bname;
