@@ -1,3 +1,0 @@
-Tags.json filter=lfs diff=lfs merge=lfs -text
-Votes.json filter=lfs diff=lfs merge=lfs -text
-Posts.json filter=lfs diff=lfs merge=lfs -text
